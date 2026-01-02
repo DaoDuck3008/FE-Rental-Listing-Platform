@@ -40,11 +40,11 @@ export default function RegisterPage() {
             </p>
           </div>
           <div className="space-y-3">
-            <button className="w-full flex items-center justify-center gap-3 bg-white  border border-slate-200  hover:bg-slate-50  text-slate-700  font-bold py-3 px-4 rounded-lg transition-all duration-200 h-12">
+            <button className="w-full flex items-center cursor-pointer justify-center gap-3 bg-white  border border-slate-200  hover:bg-slate-50  text-slate-700  font-bold py-3 px-4 rounded-lg transition-all duration-200 h-12">
               <img className="w-6 h-6" src="/GoogleLogo.png" />
               <span>Tiếp tục với Google</span>
             </button>
-            <button className="w-full flex items-center justify-center gap-3 bg-white  border border-slate-200  hover:bg-slate-50  text-slate-700 font-bold py-3 px-4 rounded-lg transition-all duration-200 h-12">
+            <button className="w-full flex items-center justify-center cursor-pointer gap-3 bg-white  border border-slate-200  hover:bg-slate-50  text-slate-700 font-bold py-3 px-4 rounded-lg transition-all duration-200 h-12">
               <img className="w-6 h-6" src="/FacebookLogo.png" />
               <span>Tiếp tục với Facebook</span>
             </button>
@@ -276,7 +276,7 @@ export default function RegisterPage() {
               Đã có tài khoản?
               <a
                 className="text-primary hover:text-blue-600 font-bold ml-1 transition-colors"
-                href="#"
+                href="/login"
               >
                 Đăng nhập
               </a>
