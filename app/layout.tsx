@@ -3,7 +3,7 @@ import { Geist_Mono, Manrope } from "next/font/google";
 import "@/styles/global.css";
 import AppHeader from "@/components/layout/header";
 import AppFooter from "@/components/layout/footer";
-import { ThemeProvider } from "next-themes";
+import { ToastContainer } from "react-toastify";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -27,11 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="light">
+    <html lang="vi">
       <body className={`${manrope.variable} ${geistMono.variable} antialiased`}>
         <AppHeader />
         {children}
         <AppFooter />
+        <ToastContainer />
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { register } from "@/services/auth.api";
 import {
   ArrowRight,
   ChevronDown,
@@ -13,12 +14,86 @@ import {
   User,
   VenusAndMarsIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+
+interface FormState {
+  fullName: string;
+  gender: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
   const [visibleConfirmPassword, setVisibleConfirmPassword] =
     useState<boolean>(false);
+
+  const [form, setForm] = useState<FormState>({
+    fullName: "",
+    gender: "Male",
+    phoneNumber: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleRegister = async () => {
+    try {
+      // validate
+      if (!form.fullName.trim()) {
+        toast.warning("Họ tên không được để trống");
+        return;
+      }
+
+      if (!form.phoneNumber.trim()) {
+        toast.warning("Số điện thoại không được để trống");
+        return;
+      }
+
+      if (!form.email.trim()) {
+        toast.warning("Email không được để trống");
+        return;
+      }
+
+      if (!form.password) {
+        toast.warning("Mật khẩu không được để trống");
+        return;
+      }
+
+      if (form.password !== form.confirmPassword) {
+        toast.warning("Mật khẩu không khớp!");
+        return;
+      }
+
+      const result = await register(form);
+      if (result.status === 201) {
+        toast.success("Đăng kí tài khoản thành công!");
+        router.push("/login");
+        return;
+      }
+    } catch (error: any) {
+      toast.error("Có lỗi xảy ra!");
+      console.error(">>> Register Error: ", error);
+    }
+  };
 
   return (
     <div className="bg-background-light  text-slate-900  min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 transition-colors duration-200">
@@ -56,7 +131,7 @@ export default function RegisterPage() {
             </span>
             <div className="grow border-t border-slate-200 "></div>
           </div>
-          <form action="#" className="space-y-5">
+          <div className="space-y-5">
             <div className="space-y-1.5">
               <label
                 className="block text-sm font-semibold text-slate-700 "
@@ -73,9 +148,11 @@ export default function RegisterPage() {
                 <input
                   className="block w-full pl-10 pr-4 py-3 bg-slate-50  border-transparent focus:bg-white ring-1 ring-slate-200  focus:ring-2 focus:ring-primary rounded-lg text-slate-900  placeholder-slate-400 transition-all text-sm font-medium"
                   id="fullname"
-                  name="fullname"
+                  name="fullName"
                   placeholder="Nguyễn Văn A"
                   type="text"
+                  value={form.fullName}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -97,6 +174,8 @@ export default function RegisterPage() {
                     className="appearance-none block w-full pl-10 pr-8 py-3 bg-slate-50  border-transparent  focus:bg-white  ring-1 ring-slate-200  focus:ring-2 focus:ring-primary rounded-lg text-slate-900  transition-all text-sm font-medium"
                     id="gender"
                     name="gender"
+                    value={form.gender}
+                    onChange={handleChange}
                   >
                     <option value="">Chọn</option>
                     <option value="male">Nam</option>
@@ -126,9 +205,11 @@ export default function RegisterPage() {
                   <input
                     className="block w-full pl-10 pr-4 py-3 bg-slate-50  border-transparent  focus:bg-white  ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-lg text-slate-900  placeholder-slate-400 transition-all text-sm font-medium"
                     id="phone"
-                    name="phone"
+                    name="phoneNumber"
                     placeholder="09xx..."
                     type="tel"
+                    value={form.phoneNumber}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -152,6 +233,8 @@ export default function RegisterPage() {
                   name="email"
                   placeholder="example@gmail.com"
                   type="email"
+                  value={form.email}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -174,6 +257,8 @@ export default function RegisterPage() {
                   name="password"
                   placeholder="Tối thiểu 8 ký tự"
                   type={visiblePassword ? "text" : "password"}
+                  value={form.password}
+                  onChange={handleChange}
                 />
                 {!visiblePassword && (
                   <button
@@ -215,9 +300,11 @@ export default function RegisterPage() {
                 <input
                   className="block w-full pl-10 pr-10 py-3 bg-slate-50  border-transparent  focus:bg-white  ring-1 ring-slate-200  focus:ring-2 focus:ring-primary rounded-lg text-slate-900  placeholder-slate-400 transition-all text-sm font-medium"
                   id="confirm_password"
-                  name="confirm_password"
+                  name="confirmPassword"
                   placeholder="Nhập lại mật khẩu"
                   type={visibleConfirmPassword ? "text" : "password"}
+                  value={form.confirmPassword}
+                  onChange={handleChange}
                 />
                 {!visibleConfirmPassword && (
                   <button
@@ -246,7 +333,7 @@ export default function RegisterPage() {
             </div>
             <button
               className="w-full flex items-center justify-center cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-lg transition-colors shadow-md shadow-blue-500/20 mt-2"
-              type="submit"
+              onClick={() => handleRegister()}
             >
               <span className="truncate">Đăng ký tài khoản</span>
               <span className="material-symbols-outlined ml-2 text-sm">
@@ -255,31 +342,31 @@ export default function RegisterPage() {
             </button>
             <p className="text-xs text-center text-slate-400 mt-4 leading-relaxed px-4">
               Bằng việc đăng ký, bạn đồng ý với
-              <a
+              <Link
                 className="underline hover:text-blue transition-colors"
                 href="#"
               >
                 Điều khoản dịch vụ
-              </a>
+              </Link>
               và
-              <a
+              <Link
                 className="underline hover:text-primary transition-colors"
                 href="#"
               >
                 Chính sách bảo mật
-              </a>
+              </Link>
               của chúng tôi.
             </p>
-          </form>
+          </div>
           <div className="mt-8 text-center pt-6 border-t border-slate-100 ">
             <p className="text-sm font-medium text-slate-600 ">
               Đã có tài khoản?
-              <a
+              <Link
                 className="text-primary hover:text-blue-600 font-bold ml-1 transition-colors"
                 href="/login"
               >
                 Đăng nhập
-              </a>
+              </Link>
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { Handshake, Menu } from "lucide-react";
-import { ThemeToggle } from "../common/themeToggle";
+import Link from "next/link";
 
 export default function AppHeader() {
   return (
@@ -35,9 +35,12 @@ export default function AppHeader() {
             </a>
           </nav>
           <div className="flex gap-3">
-            <button className="flex items-center justify-center rounded-lg h-10 px-4 bg-transparent hover:bg-slate-200  text-slate-900 text-sm font-bold transition-colors">
+            <Link
+              href="/login"
+              className="flex items-center justify-center rounded-lg h-10 px-4 bg-transparent hover:bg-slate-200  text-slate-900 text-sm font-bold transition-colors"
+            >
               Đăng nhập
-            </button>
+            </Link>
             <button className="flex items-center justify-center rounded-lg h-10 px-5 bg-[#137fec] hover:bg-blue-600 text-white text-sm font-bold shadow-sm shadow-blue-500/30 transition-all">
               Đăng tin
             </button>

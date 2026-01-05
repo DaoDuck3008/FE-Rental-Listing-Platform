@@ -1,9 +1,13 @@
 "use client";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function LoginPage() {
   const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
+
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   return (
     <div className="bg-background-light font-display text-[#0d141b]  min-h-screen flex flex-col">
@@ -86,12 +90,12 @@ export default function LoginPage() {
                     Ghi nhớ đăng nhập
                   </span>
                 </label>
-                <a
+                <Link
                   className="text-blue-500 text-sm font-semibold hover:underline decoration-2 underline-offset-2"
                   href="#"
                 >
                   Quên mật khẩu?
-                </a>
+                </Link>
               </div>
               <button className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                 <span>Đăng nhập</span>
@@ -117,12 +121,12 @@ export default function LoginPage() {
             <div className="mt-8 text-center">
               <p className="text-slate-600  text-sm">
                 Chưa có tài khoản?
-                <a
+                <Link
                   className="text-blue-500 font-bold hover:underline decoration-2 underline-offset-2 ml-1"
                   href="/register"
                 >
                   Đăng ký ngay
-                </a>
+                </Link>
               </p>
             </div>
           </div>
