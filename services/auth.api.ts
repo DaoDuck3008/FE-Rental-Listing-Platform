@@ -29,3 +29,37 @@ export const register = async (data: RegisterForm) => {
     throw error;
   }
 };
+
+export const login = async (
+  email: string,
+  password: string,
+  rememberMe: boolean
+) => {
+  try {
+    const formData = new FormData();
+
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("rememberMe", rememberMe ? "1" : "0");
+
+    return api.post("/api/auth/login", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const logout = async () => {
+  try {
+    return api.post("/api/auth/logout");
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const refresh = async () => {
+  return api.post("/api/auth/refresh");
+};

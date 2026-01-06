@@ -1,7 +1,15 @@
+"use client";
+
 import { Handshake, Menu } from "lucide-react";
 import Link from "next/link";
+import { useAuthStore } from "@/store/auth.store";
+import { useState } from "react";
+import UserDropdown from "./userDropdown";
 
 export default function AppHeader() {
+  const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200  bg-background-light/95  backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 md:px-10 h-16 flex items-center justify-between">
@@ -34,13 +42,19 @@ export default function AppHeader() {
               Tìm môi giới
             </a>
           </nav>
-          <div className="flex gap-3">
-            <Link
-              href="/login"
-              className="flex items-center justify-center rounded-lg h-10 px-4 bg-transparent hover:bg-slate-200  text-slate-900 text-sm font-bold transition-colors"
-            >
-              Đăng nhập
-            </Link>
+          <div className="flex gap-3 items-center">
+            {!user ? (
+              <Link
+                href="/login"
+                className="flex items-center justify-center rounded-lg h-10 px-4 bg-transparent hover:bg-slate-200 text-slate-900 text-sm font-bold transition-colors"
+              >
+                Đăng nhập
+              </Link>
+            ) : (
+              // 🔹 ĐÃ ĐĂNG NHẬP
+              <UserDropdown user={user} onLogout={clearAuth} />
+            )}
+
             <button className="flex items-center justify-center rounded-lg h-10 px-5 bg-[#137fec] hover:bg-blue-600 text-white text-sm font-bold shadow-sm shadow-blue-500/30 transition-all">
               Đăng tin
             </button>

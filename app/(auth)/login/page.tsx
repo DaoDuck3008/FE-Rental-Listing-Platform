@@ -1,13 +1,53 @@
 "use client";
+import { login } from "@/services/auth.api";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const setAuth = useAuthStore((s) => s.setAuth);
+
   const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+
+  const handleLogin = async () => {
+    try {
+      // validate
+      if (!email) {
+        toast.warning("Email đăng nhập không được bỏ trống!");
+      }
+      if (!password) {
+        toast.warning("Mật khẩu không được bỏ trống!");
+      }
+
+      const result = await login(email, password, rememberMe);
+
+      const { access_token, user } = result.data;
+      setAuth(access_token, user);
+
+      if (result.status === 200) {
+        toast.success("Đăng nhập thành công!");
+        router.push("/");
+        return;
+      }
+    } catch (error: any) {
+      let message;
+      if (error.status === 401 && error.response) {
+        message = error.response.data?.Message;
+      } else {
+        message = error.message || "Đăng nhập thất bại";
+      }
+      toast.error(message);
+      return;
+    }
+  };
 
   return (
     <div className="bg-background-light font-display text-[#0d141b]  min-h-screen flex flex-col">
@@ -22,7 +62,7 @@ export default function LoginPage() {
             </p>
           </div>
           <div className="p-8 pt-6">
-            <form action="#" className="flex flex-col gap-5" method="POST">
+            <div className="flex flex-col gap-5">
               <label className="flex flex-col">
                 <span className="text-[#0d141b]  text-sm font-medium leading-normal pb-2">
                   Đăng nhập bằng Email
@@ -32,6 +72,9 @@ export default function LoginPage() {
                     className="form-input w-full rounded-lg text-[#0d141b]  border border-[#cfdbe7]  bg-slate-50 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-12 px-4 pl-11 text-base placeholder:text-[#94a3b8]"
                     placeholder="Nhập email hoặc số điện thoại"
                     type="email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-[20px]">
@@ -49,6 +92,9 @@ export default function LoginPage() {
                     className="form-input w-full rounded-lg rounded-r-none border border-[#cfdbe7]  border-r-0 bg-slate-50  focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:z-10 h-12 px-4 pl-11 text-[#0d141b]  placeholder:text-[#94a3b8]"
                     placeholder="Nhập mật khẩu"
                     type={visiblePassword ? "text" : "password"}
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center pointer-events-none z-20">
                     <span className="material-symbols-outlined text-[20px]">
@@ -85,6 +131,9 @@ export default function LoginPage() {
                   <input
                     className="custom-checkbox h-5 w-5 rounded border-[#cfdbe7]  border-2 bg-transparent text-blue-500 checked:bg-blue-500 checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none transition-all"
                     type="checkbox"
+                    name="rememberMe"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                   />
                   <span className="text-[#0d141b]  text-sm font-medium group-hover:text-blue-500 transition-colors">
                     Ghi nhớ đăng nhập
@@ -97,10 +146,13 @@ export default function LoginPage() {
                   Quên mật khẩu?
                 </Link>
               </div>
-              <button className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+              <button
+                onClick={handleLogin}
+                className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              >
                 <span>Đăng nhập</span>
               </button>
-            </form>
+            </div>
             <div className="relative flex py-6 items-center">
               <div className="grow border-t border-slate-200 "></div>
               <span className="shrink-0 mx-4 text-slate-400 text-sm font-medium">
