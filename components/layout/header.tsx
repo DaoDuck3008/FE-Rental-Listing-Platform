@@ -13,14 +13,17 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200  bg-background-light/95  backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 md:px-10 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-slate-900  cursor-pointer">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-slate-900  cursor-pointer"
+        >
           <div className="size-8 text-primary flex items-center justify-center">
             <span className="material-symbols-outlined text-3xl">
               <Handshake color="#137fec" size={30} />
             </span>
           </div>
           <h2 className="text-xl font-bold tracking-tight">RentalHome</h2>
-        </div>
+        </Link>
         <div className="hidden md:flex flex-1 justify-end items-center gap-8">
           <nav className="flex items-center gap-6">
             <a

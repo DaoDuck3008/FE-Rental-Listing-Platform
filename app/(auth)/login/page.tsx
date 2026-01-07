@@ -4,12 +4,14 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/";
 
   const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
 
@@ -34,7 +36,7 @@ export default function LoginPage() {
 
       if (result.status === 200) {
         toast.success("Đăng nhập thành công!");
-        router.push("/");
+        router.replace(redirect);
         return;
       }
     } catch (error: any) {

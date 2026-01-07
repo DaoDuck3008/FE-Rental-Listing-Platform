@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { refresh } from "@/services/auth.api";
 import { usePathname, useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function AuthHydrator({
   children,
@@ -12,6 +13,7 @@ export default function AuthHydrator({
 }) {
   const setAuth = useAuthStore((s) => s.setAuth);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const setHydrated = useAuthStore((s) => s.setHydrated);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -25,9 +27,13 @@ export default function AuthHydrator({
         clearAuth();
 
         // nếu đang ở protected route thì đẩy về login
-        if (!pathname.startsWith("/login")) {
-          router.replace("/login");
-        }
+        // if (!pathname.startsWith("/login")) {
+        //   toast.info("You are being redirected to login page.");
+        //   router.replace("/login");
+        // }
+      } finally {
+        // đánh dấu đã hydrate xong
+        setHydrated();
       }
     };
 
