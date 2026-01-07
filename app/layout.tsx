@@ -32,7 +32,7 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${geistMono.variable} antialiased`}>
         <AuthHydrator>
           <AppHeader />
-          {children}
+          <div className="min-h-screen">{children}</div>
           <AppFooter />
           <ToastContainer />
         </AuthHydrator>
