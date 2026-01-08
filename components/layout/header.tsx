@@ -49,7 +49,7 @@ export default function AppHeader() {
             {!user ? (
               <Link
                 href="/login"
-                className="flex items-center justify-center rounded-lg h-10 px-4 bg-transparent hover:bg-slate-200 text-slate-900 text-sm font-bold transition-colors"
+                className="flex items-center justify-center rounded-lg h-10 px-4 bg-slate-200 hover:bg-slate-300 text-slate-900 text-sm font-bold transition-colors"
               >
                 Đăng nhập
               </Link>
