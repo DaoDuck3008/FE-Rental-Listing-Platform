@@ -13,6 +13,7 @@ interface Props {
     id: string;
     fullName: string;
     role: string;
+    avatar?: string;
   };
   onLogout: () => void;
 }
@@ -53,7 +54,15 @@ export default function UserDropdown({ user, onLogout }: Props) {
         className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-100 transition"
       >
         <div className="h-8 w-8 rounded-full bg-slate-300 flex items-center justify-center text-sm font-bold">
-          <User />
+          {user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.fullName}
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <User className="h-5 w-5 text-slate-600" />
+          )}
         </div>
         <span className="text-sm font-semibold text-slate-900">
           {user.fullName}
