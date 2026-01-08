@@ -5,6 +5,7 @@ import AppHeader from "@/components/layout/header";
 import AppFooter from "@/components/layout/footer";
 import { ToastContainer } from "react-toastify";
 import AuthHydrator from "@/components/providers/authHydrator";
+import GoogleProvider from "@/components/providers/googleProvider";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -31,10 +32,12 @@ export default function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <body className={`${manrope.variable} ${geistMono.variable} antialiased`}>
         <AuthHydrator>
-          <AppHeader />
-          <div className="min-h-screen">{children}</div>
-          <AppFooter />
-          <ToastContainer />
+          <GoogleProvider>
+            <AppHeader />
+            <div className="min-h-screen">{children}</div>
+            <AppFooter />
+            <ToastContainer />
+          </GoogleProvider>
         </AuthHydrator>
       </body>
     </html>

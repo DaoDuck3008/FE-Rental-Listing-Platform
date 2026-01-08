@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
+import GoogleLoginButton from "@/components/auth/googleBtn";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -163,10 +164,11 @@ export default function LoginPage() {
               <div className="grow border-t border-slate-200 "></div>
             </div>
             <div className="space-y-3">
-              <button className="w-full flex items-center cursor-pointer justify-center gap-3 bg-white  border border-slate-200  hover:bg-slate-50  text-slate-700  font-bold py-3 px-4 rounded-lg transition-all duration-200 h-12">
+              {/* <button className="w-full flex items-center cursor-pointer justify-center gap-3 bg-white  border border-slate-200  hover:bg-slate-50  text-slate-700  font-bold py-3 px-4 rounded-lg transition-all duration-200 h-12">
                 <img className="w-6 h-6" src="/GoogleLogo.png" />
                 <span>Tiếp tục với Google</span>
-              </button>
+              </button> */}
+              <GoogleLoginButton />
               <button className="w-full flex items-center cursor-pointer justify-center gap-3 bg-white  border border-slate-200  hover:bg-slate-50  text-slate-700 font-bold py-3 px-4 rounded-lg transition-all duration-200 h-12">
                 <img className="w-6 h-6" src="/FacebookLogo.png" />
                 <span>Tiếp tục với Facebook</span>

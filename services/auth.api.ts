@@ -63,3 +63,11 @@ export const logout = async () => {
 export const refresh = async () => {
   return api.post("/api/auth/refresh");
 };
+
+export const googleLogin = async (token: string) => {
+  try {
+    return api.post("/api/auth/google", { credential: token });
+  } catch (error: any) {
+    throw error;
+  }
+};
