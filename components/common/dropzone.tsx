@@ -28,7 +28,11 @@ export default function Dropzone({
   // Cấu hình Dropzone
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "image/png": [".png"], "image/jpeg": [".jpg", ".jpeg"] },
+    accept: {
+      "image/png": [".png"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/webp": [".webp"],
+    },
     maxFiles: 1,
     multiple: false,
     maxSize: 10 * 1024 * 1024, // 10MB
@@ -109,7 +113,7 @@ export default function Dropzone({
           <div className="mt-3 bg-green-50 border border-green-300 px-6 py-2 rounded-xl flex items-start gap-3">
             <CheckCircle className="w-6 h-6 text-green-600 mt-1" />
             <div>
-              <p className="font-medium">{file.name}</p>
+              <p className="font-medium max-w-40 truncate">{file.name}</p>
               <p className="text-sm text-gray-600">
                 {(file.size / 1024 / 1024).toFixed(2)} MB
               </p>

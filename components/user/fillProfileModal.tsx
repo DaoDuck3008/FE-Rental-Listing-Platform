@@ -8,7 +8,7 @@ import {
   X,
 } from "lucide-react";
 import ModalPortal from "../ui/modalPortal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Dropzone from "../common/dropzone";
 import { toast } from "react-toastify";
 import { updateUserProfile } from "@/services/user.api";
@@ -16,7 +16,7 @@ import { updateUserProfile } from "@/services/user.api";
 interface UserProfileProps {
   avatar?: string;
   role?: string;
-  gender?: string;
+  gender?: string | "TENANT" | "LANDLORD" | "USER";
   phone_number?: string;
 
   canPostListing: boolean;
@@ -31,12 +31,18 @@ export default function FillProfileModal({
   userProfile?: UserProfileProps | null;
 }) {
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [role, setRole] = useState<string>("");
+  const [role, setRole] = useState<string>(userProfile?.role || "TENANT");
   const [phone_number, setPhoneNumber] = useState<string>(
     userProfile?.phone_number || ""
   );
   const [gender, setGender] = useState<string>(userProfile?.gender || "Male");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (userProfile?.phone_number) {
+      setPhoneNumber(userProfile.phone_number);
+    }
+  }, [userProfile]);
 
   const handleSubmit = async () => {
     try {
@@ -65,9 +71,20 @@ export default function FillProfileModal({
         return;
       }
     } catch (error: any) {
+      const res = error?.response?.data;
+
+      if (res?.code === "VALIDATION_ERROR") {
+        res.errors.forEach((err: { field: string; message: string }) => {
+          toast.error(err.message);
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const message =
         error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.";
       toast.error(message);
+      setIsLoading(false);
       console.error(error);
       return;
     }
@@ -167,11 +184,7 @@ export default function FillProfileModal({
                     <input
                       className="h-10 w-full rounded-lg border border-[#cfdbe7] bg-white pl-9 pr-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:pl-11 sm:pr-4 sm:text-base"
                       placeholder="Nhập số điện thoại"
-                      value={
-                        phone_number
-                          ? phone_number
-                          : userProfile?.phone_number || ""
-                      }
+                      value={phone_number}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                   </div>
@@ -219,7 +232,9 @@ export default function FillProfileModal({
                 onClick={handleSubmit}
                 className="flex h-10 w-full items-center justify-center rounded-lg bg-blue-500 px-4 text-sm font-bold text-white shadow-sm transition-transform hover:bg-blue-600 hover:shadow-md active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:h-12 sm:px-6 sm:text-base"
               >
-                <span className="mr-1.5 sm:mr-2">Hoàn tất</span>
+                <span className="mr-1.5 sm:mr-2">
+                  {!isLoading ? "Hoàn tất" : "Đang xử lý"}
+                </span>
                 <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
                   {!isLoading && <Check size={18} className="sm:size-auto" />}
                   {isLoading && (
