@@ -3,8 +3,8 @@
 import { Handshake, Menu } from "lucide-react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth.store";
-import { useState } from "react";
 import UserDropdown from "./userDropdown";
+import PostButton from "../common/postBtn";
 
 export default function AppHeader() {
   const user = useAuthStore((s) => s.user);
@@ -58,11 +58,7 @@ export default function AppHeader() {
               <UserDropdown user={user} onLogout={clearAuth} />
             )}
 
-            {user && (
-              <button className="flex items-center justify-center rounded-lg h-10 px-5 bg-[#137fec] hover:bg-blue-600 text-white text-sm font-bold shadow-sm shadow-blue-500/30 transition-all">
-                Đăng tin
-              </button>
-            )}
+            {user && <PostButton />}
           </div>
         </div>
         <div className="md:hidden flex items-center">

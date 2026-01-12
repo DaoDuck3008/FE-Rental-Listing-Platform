@@ -1,4 +1,5 @@
 import Dropdown from "@/components/common/dropdown";
+import PostButton from "@/components/common/postBtn";
 import RecommendCard from "@/components/homePage/recommendCard";
 import ListingCard from "@/components/listing/listingCard";
 import {
@@ -238,9 +239,10 @@ export default function Home() {
                 </p>
               </div>
               <div className="relative z-10 flex flex-col sm:flex-row gap-4">
-                <button className="bg-white text-blue-500 font-bold h-14 px-8 rounded-xl hover:bg-slate-50 hover:-translate-y-1 transition shadow-lg cursor-pointer">
-                  Đăng Bất Động Sản Của Bạn
-                </button>
+                <PostButton
+                  title="Đăng tin bất động sản của bạn"
+                  className="bg-white text-blue-500 font-bold h-14 px-8 rounded-xl hover:bg-slate-50 hover:-translate-y-1 transition shadow-lg cursor-pointer"
+                />
                 <button className="bg-blue-600 text-white  font-bold h-14 px-8 rounded-xl hover:bg-blue-700 hover:-translate-y-1 transition cursor-pointer">
                   Tìm Hiểu Thêm
                 </button>
