@@ -26,7 +26,7 @@ interface FormState {
   phone_number: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  confirm_password: string;
 }
 
 export default function RegisterPage() {
@@ -42,7 +42,7 @@ export default function RegisterPage() {
     phone_number: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirm_password: "",
   });
 
   const handleChange = (
@@ -59,30 +59,30 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     try {
       // validate
-      if (!form.full_name.trim()) {
-        toast.warning("Họ tên không được để trống");
-        return;
-      }
+      // if (!form.full_name.trim()) {
+      //   toast.warning("Họ tên không được để trống");
+      //   return;
+      // }
 
-      if (!form.phone_number.trim()) {
-        toast.warning("Số điện thoại không được để trống");
-        return;
-      }
+      // if (!form.phone_number.trim()) {
+      //   toast.warning("Số điện thoại không được để trống");
+      //   return;
+      // }
 
-      if (!form.email.trim()) {
-        toast.warning("Email không được để trống");
-        return;
-      }
+      // if (!form.email.trim()) {
+      //   toast.warning("Email không được để trống");
+      //   return;
+      // }
 
-      if (!form.password) {
-        toast.warning("Mật khẩu không được để trống");
-        return;
-      }
+      // if (!form.password) {
+      //   toast.warning("Mật khẩu không được để trống");
+      //   return;
+      // }
 
-      if (form.password !== form.confirmPassword) {
-        toast.warning("Mật khẩu không khớp!");
-        return;
-      }
+      // if (form.password !== form.confirm_password) {
+      //   toast.warning("Mật khẩu không khớp!");
+      //   return;
+      // }
 
       const result = await register(form);
       if (result.status === 201) {
@@ -91,8 +91,19 @@ export default function RegisterPage() {
         return;
       }
     } catch (error: any) {
+      const res = error?.response?.data;
+
+      if (res?.code === "VALIDATION_ERROR") {
+        res.errors.forEach((err: { field: string; message: string }) => {
+          toast.error(err.message);
+        });
+
+        return;
+      }
+
       toast.error("Có lỗi xảy ra!");
       console.error(">>> Register Error: ", error);
+      return;
     }
   };
 
@@ -302,10 +313,10 @@ export default function RegisterPage() {
                 <input
                   className="block w-full pl-10 pr-10 py-3 bg-slate-50  border-transparent  focus:bg-white  ring-1 ring-slate-200  focus:ring-2 focus:ring-primary rounded-lg text-slate-900  placeholder-slate-400 transition-all text-sm font-medium"
                   id="confirm_password"
-                  name="confirmPassword"
+                  name="confirm_password"
                   placeholder="Nhập lại mật khẩu"
                   type={visibleConfirmPassword ? "text" : "password"}
-                  value={form.confirmPassword}
+                  value={form.confirm_password}
                   onChange={handleChange}
                 />
                 {!visibleConfirmPassword && (
@@ -315,7 +326,7 @@ export default function RegisterPage() {
                     onClick={() => setVisibleConfirmPassword(true)}
                   >
                     <span className="material-symbols-outlined text-[20px]">
-                      <Eye />
+                      <EyeOff />
                     </span>
                   </button>
                 )}
@@ -327,7 +338,7 @@ export default function RegisterPage() {
                     onClick={() => setVisibleConfirmPassword(false)}
                   >
                     <span className="material-symbols-outlined text-[20px]">
-                      <EyeOff />
+                      <Eye />
                     </span>
                   </button>
                 )}

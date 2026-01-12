@@ -5,7 +5,7 @@ interface RegisterForm {
   email: string;
   phone_number: string;
   password: string;
-  confirmPassword: string;
+  confirm_password: string;
   gender: string;
 }
 
@@ -17,7 +17,7 @@ export const register = async (data: RegisterForm) => {
     formData.append("email", data.email);
     formData.append("phone_number", data.phone_number);
     formData.append("password", data.password);
-    formData.append("confirmPassword", data.confirmPassword);
+    formData.append("confirm_password", data.confirm_password);
     formData.append("gender", data.gender);
 
     return api.post("/api/auth/register", formData, {
