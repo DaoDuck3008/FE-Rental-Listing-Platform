@@ -21,9 +21,9 @@ import { useRouter } from "next/navigation";
 import GoogleLoginButton from "@/components/auth/googleBtn";
 
 interface FormState {
-  fullName: string;
+  full_name: string;
   gender: string;
-  phoneNumber: string;
+  phone_number: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -37,9 +37,9 @@ export default function RegisterPage() {
     useState<boolean>(false);
 
   const [form, setForm] = useState<FormState>({
-    fullName: "",
+    full_name: "",
     gender: "Male",
-    phoneNumber: "",
+    phone_number: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -59,12 +59,12 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     try {
       // validate
-      if (!form.fullName.trim()) {
+      if (!form.full_name.trim()) {
         toast.warning("Họ tên không được để trống");
         return;
       }
 
-      if (!form.phoneNumber.trim()) {
+      if (!form.phone_number.trim()) {
         toast.warning("Số điện thoại không được để trống");
         return;
       }
@@ -137,7 +137,7 @@ export default function RegisterPage() {
             <div className="space-y-1.5">
               <label
                 className="block text-sm font-semibold text-slate-700 "
-                htmlFor="fullname"
+                htmlFor="full_name"
               >
                 Tên đầy đủ
               </label>
@@ -149,11 +149,11 @@ export default function RegisterPage() {
                 </div>
                 <input
                   className="block w-full pl-10 pr-4 py-3 bg-slate-50  border-transparent focus:bg-white ring-1 ring-slate-200  focus:ring-2 focus:ring-primary rounded-lg text-slate-900  placeholder-slate-400 transition-all text-sm font-medium"
-                  id="fullname"
-                  name="fullName"
+                  id="full_name"
+                  name="full_name"
                   placeholder="Nguyễn Văn A"
                   type="text"
-                  value={form.fullName}
+                  value={form.full_name}
                   onChange={handleChange}
                 />
               </div>
@@ -207,10 +207,10 @@ export default function RegisterPage() {
                   <input
                     className="block w-full pl-10 pr-4 py-3 bg-slate-50  border-transparent  focus:bg-white  ring-1 ring-slate-200 focus:ring-2 focus:ring-primary rounded-lg text-slate-900  placeholder-slate-400 transition-all text-sm font-medium"
                     id="phone"
-                    name="phoneNumber"
+                    name="phone_number"
                     placeholder="09xx..."
                     type="tel"
-                    value={form.phoneNumber}
+                    value={form.phone_number}
                     onChange={handleChange}
                   />
                 </div>

@@ -10,7 +10,7 @@ interface UserProfileProps {
   avatar?: string;
   role?: string;
   gender?: string;
-  phoneNumber?: string;
+  phone_number?: string;
 
   canPostListing: boolean;
   profileCompleted: boolean;

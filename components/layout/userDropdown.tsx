@@ -11,7 +11,7 @@ import { ChevronDown, User } from "lucide-react";
 interface Props {
   user: {
     id: string;
-    fullName: string;
+    full_name: string;
     role: string;
     avatar?: string;
   };
@@ -57,7 +57,7 @@ export default function UserDropdown({ user, onLogout }: Props) {
           {user.avatar ? (
             <img
               src={user.avatar}
-              alt={user.fullName}
+              alt={user.full_name}
               className="h-8 w-8 rounded-full object-cover"
             />
           ) : (
@@ -65,7 +65,7 @@ export default function UserDropdown({ user, onLogout }: Props) {
           )}
         </div>
         <span className="text-sm font-semibold text-slate-900">
-          {user.fullName}
+          {user.full_name}
         </span>
         <span>
           <ChevronDown />

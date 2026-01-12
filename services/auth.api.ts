@@ -1,9 +1,9 @@
 import { api } from "./api";
 
 interface RegisterForm {
-  fullName: string;
+  full_name: string;
   email: string;
-  phoneNumber: string;
+  phone_number: string;
   password: string;
   confirmPassword: string;
   gender: string;
@@ -13,9 +13,9 @@ export const register = async (data: RegisterForm) => {
   try {
     const formData = new FormData();
 
-    formData.append("fullName", data.fullName);
+    formData.append("full_name", data.full_name);
     formData.append("email", data.email);
-    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("phone_number", data.phone_number);
     formData.append("password", data.password);
     formData.append("confirmPassword", data.confirmPassword);
     formData.append("gender", data.gender);

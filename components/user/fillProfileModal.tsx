@@ -17,7 +17,7 @@ interface UserProfileProps {
   avatar?: string;
   role?: string;
   gender?: string;
-  phoneNumber?: string;
+  phone_number?: string;
 
   canPostListing: boolean;
   profileCompleted: boolean;
@@ -33,7 +33,7 @@ export default function FillProfileModal({
   const [avatar, setAvatar] = useState<File | null>(null);
   const [role, setRole] = useState<string>("");
   const [phone_number, setPhoneNumber] = useState<string>(
-    userProfile?.phoneNumber || ""
+    userProfile?.phone_number || ""
   );
   const [gender, setGender] = useState<string>(userProfile?.gender || "Male");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -170,7 +170,7 @@ export default function FillProfileModal({
                       value={
                         phone_number
                           ? phone_number
-                          : userProfile?.phoneNumber || ""
+                          : userProfile?.phone_number || ""
                       }
                       onChange={(e) => setPhoneNumber(e.target.value)}
                     />
