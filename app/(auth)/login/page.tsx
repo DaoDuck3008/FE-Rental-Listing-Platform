@@ -45,13 +45,13 @@ export default function LoginPage() {
         return;
       }
     } catch (error: any) {
-      let message;
-      if (error.status === 401 && error.response) {
-        message = error.response.data?.Message;
+      const res = error.response.data;
+      if ((res.error = "UNAUTHORIZED")) {
+        toast.warning(res.message);
       } else {
-        message = error.message || "Đăng nhập thất bại";
+        toast.error("Đăng nhập thất bại");
+        console.error("Login error: ", error);
       }
-      toast.error(message);
       return;
     }
   };

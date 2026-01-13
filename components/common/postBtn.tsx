@@ -51,10 +51,19 @@ export default function PostButton({
       router.replace("/listing-create");
       return;
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
-      console.log("Error at posting button:", error);
-      toast.error(message);
+      const res = error.response.data;
+      switch (res.error) {
+        case "UNAUTHORIZED":
+          toast.warning(res.message);
+          break;
+        case "NOT_FOUND":
+          toast.error(res.message);
+          break;
+        default:
+          toast.error("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+          console.error(error);
+          break;
+      }
       return;
     }
   };

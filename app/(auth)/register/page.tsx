@@ -58,31 +58,31 @@ export default function RegisterPage() {
 
   const handleRegister = async () => {
     try {
-      // validate
-      // if (!form.full_name.trim()) {
-      //   toast.warning("Họ tên không được để trống");
-      //   return;
-      // }
+      // validate;
+      if (!form.full_name.trim()) {
+        toast.warning("Họ tên không được để trống");
+        return;
+      }
 
-      // if (!form.phone_number.trim()) {
-      //   toast.warning("Số điện thoại không được để trống");
-      //   return;
-      // }
+      if (!form.phone_number.trim()) {
+        toast.warning("Số điện thoại không được để trống");
+        return;
+      }
 
-      // if (!form.email.trim()) {
-      //   toast.warning("Email không được để trống");
-      //   return;
-      // }
+      if (!form.email.trim()) {
+        toast.warning("Email không được để trống");
+        return;
+      }
 
-      // if (!form.password) {
-      //   toast.warning("Mật khẩu không được để trống");
-      //   return;
-      // }
+      if (!form.password) {
+        toast.warning("Mật khẩu không được để trống");
+        return;
+      }
 
-      // if (form.password !== form.confirm_password) {
-      //   toast.warning("Mật khẩu không khớp!");
-      //   return;
-      // }
+      if (form.password !== form.confirm_password) {
+        toast.warning("Mật khẩu không khớp!");
+        return;
+      }
 
       const result = await register(form);
       if (result.status === 201) {
@@ -91,18 +91,21 @@ export default function RegisterPage() {
         return;
       }
     } catch (error: any) {
-      const res = error?.response?.data;
-
-      if (res?.code === "VALIDATION_ERROR") {
-        res.errors.forEach((err: { field: string; message: string }) => {
-          toast.error(err.message);
-        });
-
-        return;
+      const res = error.response.data;
+      switch (res.error) {
+        case "VALIDATION_ERROR":
+          res.errors.forEach((err: { field: string; message: string }) => {
+            toast.error(err.message);
+          });
+          break;
+        case "CONFLICT_ERROR":
+          toast.error(res.message);
+          break;
+        default:
+          toast.error("Có lỗi xảy ra!");
+          console.error("Register error: ", error);
+          break;
       }
-
-      toast.error("Có lỗi xảy ra!");
-      console.error(">>> Register Error: ", error);
       return;
     }
   };

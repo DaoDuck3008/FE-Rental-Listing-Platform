@@ -71,21 +71,22 @@ export default function FillProfileModal({
         return;
       }
     } catch (error: any) {
-      const res = error?.response?.data;
-
-      if (res?.code === "VALIDATION_ERROR") {
-        res.errors.forEach((err: { field: string; message: string }) => {
-          toast.error(err.message);
-        });
-        setIsLoading(false);
-        return;
+      const res = error.response.data;
+      switch (res.error) {
+        case "VALIDATION_ERROR":
+          res.errors.forEach((err: { field: string; message: string }) => {
+            toast.error(err.message);
+          });
+          break;
+        case "NOT_FOUND":
+          toast.error(res.message);
+          break;
+        default:
+          toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
+          console.error("Update profile error: ", error);
+          break;
       }
-
-      const message =
-        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.";
-      toast.error(message);
       setIsLoading(false);
-      console.error(error);
       return;
     }
   };
