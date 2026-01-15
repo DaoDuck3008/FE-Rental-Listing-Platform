@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Manrope } from "next/font/google";
 import "@/styles/global.css";
-import AppHeader from "@/components/layout/header";
-import AppFooter from "@/components/layout/footer";
 import { ToastContainer } from "react-toastify";
 import AuthHydrator from "@/components/providers/authHydrator";
 import GoogleProvider from "@/components/providers/googleProvider";
@@ -33,9 +31,7 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${geistMono.variable} antialiased`}>
         <AuthHydrator>
           <GoogleProvider>
-            <AppHeader />
             <div className="min-h-screen">{children}</div>
-            <AppFooter />
             <ToastContainer />
           </GoogleProvider>
         </AuthHydrator>
