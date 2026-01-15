@@ -6,12 +6,42 @@ import {
   LogOut,
   Newspaper,
   User,
+  X,
 } from "lucide-react";
+import { logout } from "@/services/auth.api";
+import { toast } from "react-toastify";
 
-export default function UserSidebar() {
+interface Props {
+  user: {
+    id: string;
+    full_name: string;
+    role: string;
+    avatar?: string;
+  };
+  onLogout: () => void;
+  onClose?: () => void;
+}
+
+export default function UserSidebar({ user, onLogout, onClose }: Props) {
+  const handleLogout = async () => {
+    try {
+      const result = await logout();
+    } catch (error: any) {
+      if (error.status === 401) {
+        toast.warning("Bạn chưa đăng nhập");
+      } else {
+        toast.error("Có lỗi xảy ra!");
+        console.error(">>> Logout error: ", error);
+      }
+    } finally {
+      onLogout;
+      toast.success("Đăng xuất thành công!");
+      window.location.href = "/";
+    }
+  };
   return (
     <aside
-      className="fixed top-0 left-0 h-full w-72 bg-white border-r border-[#cfdbe7] flex flex-col z-50 transition-transform duration-300 -translate-x-full peer-checked:translate-x-0 lg:translate-x-0 shadow-2xl lg:shadow-none overflow-y-auto no-scrollbar peer-checked-desktop:translate-x-0"
+      className="h-full w-72 bg-white border-r border-[#cfdbe7] flex flex-col shadow-2xl lg:shadow-none overflow-y-auto no-scrollbar"
       id="sidebar"
     >
       <div className="p-6">
@@ -26,19 +56,30 @@ export default function UserSidebar() {
               Rental House
             </span>
           </div>
-          <label
-            className="lg:hidden text-slate-400 cursor-pointer hover:text-red-500 transition-colors"
-            htmlFor="mobile-menu-toggle"
+          <button
+            className="text-slate-400 cursor-pointer hover:text-blue-500 transition-colors p-1 rounded-lg hover:bg-slate-100"
+            onClick={onClose}
+            aria-label="Close sidebar"
           >
-            <span className="material-symbols-outlined">close</span>
-          </label>
+            <X className="h-5 w-5" />
+          </button>
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-            <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-blue-500/20 shrink-0"></div>
+            <div className="bg-center bg-no-repeat border-blue-500/20 shrink-0">
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.full_name}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <User className="h-5 w-5 text-slate-600" />
+              )}
+            </div>
             <div className="flex flex-col overflow-hidden">
               <h1 className="text-[#0d141b] text-sm font-bold leading-tight truncate">
-                Nguyễn Văn A
+                {user.full_name}
               </h1>
               <p className="text-[#4c739a] text-xs font-medium truncate">
                 Chủ cho thuê
@@ -105,7 +146,10 @@ export default function UserSidebar() {
         </div>
       </div>
       <div className="mt-auto p-6 border-t border-[#cfdbe7] flex flex-col gap-2 relative">
-        <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-500 hover:bg-red-50 transition-colors group">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-500 hover:bg-red-50 transition-colors group"
+        >
           <span className="material-symbols-outlined group-hover:scale-110 transition-transform">
             <LogOut />
           </span>

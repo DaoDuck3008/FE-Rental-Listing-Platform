@@ -1,5 +1,3 @@
-import UserSidebar from "@/components/ui/UserSidebar";
-
 export default function ProfilePage() {
-  return <UserSidebar />;
+  return <div>This is profile Page</div>;
 }
