@@ -27,3 +27,11 @@ export const updateUserProfile = async (data: UserForm) => {
     throw error;
   }
 };
+
+export const getPersonalInformation = async () => {
+  try {
+    return api.get("/api/users/profile");
+  } catch (error: any) {
+    throw error;
+  }
+};

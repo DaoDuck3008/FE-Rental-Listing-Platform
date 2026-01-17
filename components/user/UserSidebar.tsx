@@ -10,19 +10,17 @@ import {
 } from "lucide-react";
 import { logout } from "@/services/auth.api";
 import { toast } from "react-toastify";
+import { useAuthStore } from "@/store/auth.store";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-interface Props {
-  user: {
-    id: string;
-    full_name: string;
-    role: string;
-    avatar?: string;
-  };
-  onLogout: () => void;
-  onClose?: () => void;
-}
+export default function UserSidebar({ onClose }: { onClose: () => void }) {
+  const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+  const currentRoute = usePathname();
 
-export default function UserSidebar({ user, onLogout, onClose }: Props) {
+  console.log(">>> Current route: ", currentRoute);
+
   const handleLogout = async () => {
     try {
       const result = await logout();
@@ -34,7 +32,7 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
         console.error(">>> Logout error: ", error);
       }
     } finally {
-      onLogout;
+      clearAuth();
       toast.success("Đăng xuất thành công!");
       window.location.href = "/";
     }
@@ -67,10 +65,10 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
             <div className="bg-center bg-no-repeat border-blue-500/20 shrink-0">
-              {user.avatar ? (
+              {user!.avatar ? (
                 <img
-                  src={user.avatar}
-                  alt={user.full_name}
+                  src={user!.avatar}
+                  alt={user!.full_name}
                   className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
@@ -79,7 +77,7 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
             </div>
             <div className="flex flex-col overflow-hidden">
               <h1 className="text-[#0d141b] text-sm font-bold leading-tight truncate">
-                {user.full_name}
+                {user!.full_name}
               </h1>
               <p className="text-[#4c739a] text-xs font-medium truncate">
                 Chủ cho thuê
@@ -87,9 +85,13 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
             </div>
           </div>
           <nav className="flex flex-col gap-2">
-            <a
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500 text-white shadow-md shadow-blue-500/20 group transition-all"
-              href="#"
+            <Link
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
+                currentRoute === "/profile"
+                  ? "bg-blue-500 text-white shadow-md"
+                  : "text-[#4c739a] hover:bg-slate-100"
+              }   shadow-blue-500/20 group transition-all`}
+              href="/profile"
             >
               <span className="material-symbols-outlined fill-1">
                 <LayoutPanelTop />
@@ -97,10 +99,14 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
               <span className="text-sm font-semibold whitespace-nowrap">
                 Tổng quan
               </span>
-            </a>
-            <a
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4c739a] hover:bg-slate-100 transition-colors group"
-              href="#"
+            </Link>
+            <Link
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
+                currentRoute === "/profile/listing-management"
+                  ? "bg-blue-500 text-white shadow-md"
+                  : "text-[#4c739a] hover:bg-slate-100"
+              }   shadow-blue-500/20 group transition-all`}
+              href="/profile/listing-management"
             >
               <span className="material-symbols-outlined group-hover:text-blue-500 transition-colors">
                 <Newspaper />
@@ -108,10 +114,14 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
               <span className="text-sm font-semibold whitespace-nowrap">
                 Quản lý bài đăng
               </span>
-            </a>
-            <a
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4c739a] hover:bg-slate-100 transition-colors group"
-              href="#"
+            </Link>
+            <Link
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
+                currentRoute === "/profile/personal-information"
+                  ? "bg-blue-500 text-white shadow-md"
+                  : "text-[#4c739a] hover:bg-slate-100"
+              }   shadow-blue-500/20 group transition-all`}
+              href="/profile/personal-information"
             >
               <span className="material-symbols-outlined group-hover:text-blue-500 transition-colors">
                 <User />
@@ -119,8 +129,8 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
               <span className="text-sm font-semibold whitespace-nowrap">
                 Hồ sơ cá nhân
               </span>
-            </a>
-            <a
+            </Link>
+            <Link
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4c739a] hover:bg-slate-100 transition-colors group"
               href="#"
             >
@@ -130,8 +140,8 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
               <span className="text-sm font-semibold whitespace-nowrap">
                 Tin đã lưu
               </span>
-            </a>
-            <a
+            </Link>
+            <Link
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4c739a] hover:bg-slate-100 transition-colors group"
               href="#"
             >
@@ -141,7 +151,7 @@ export default function UserSidebar({ user, onLogout, onClose }: Props) {
               <span className="text-sm font-semibold whitespace-nowrap">
                 Thông báo
               </span>
-            </a>
+            </Link>
           </nav>
         </div>
       </div>

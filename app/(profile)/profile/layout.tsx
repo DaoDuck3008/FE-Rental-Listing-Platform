@@ -1,7 +1,6 @@
 "use client";
 import AuthGuard from "@/components/guard/authGuard";
-import { useAuthStore } from "@/store/auth.store";
-import UserSidebar from "@/components/ui/UserSidebar";
+import UserSidebar from "@/components/user/UserSidebar";
 import { Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -10,8 +9,6 @@ export default function ProfileLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = useAuthStore((s) => s.user);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Mở sidebar mặc định trên desktop
@@ -23,12 +20,12 @@ export default function ProfileLayout({
         setIsSidebarOpen(false);
       }
     };
-    
+
     // Set initial state
     handleResize();
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const toggleSidebar = () => {
@@ -71,20 +68,14 @@ export default function ProfileLayout({
               ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
             `}
           >
-            {user && (
-              <UserSidebar
-                user={user}
-                onLogout={clearAuth}
-                onClose={closeSidebar}
-              />
-            )}
+            <UserSidebar onClose={closeSidebar} />
           </div>
 
           {/* Main Content */}
-          <div 
+          <div
             className={`
               flex-1 overflow-y-auto transition-all duration-300
-              ${isSidebarOpen ? 'lg:ml-72' : 'ml-0'}
+              ${isSidebarOpen ? "lg:ml-72" : "ml-0"}
             `}
           >
             <div className="p-4 lg:p-8 pt-20 lg:pt-8">{children}</div>
