@@ -19,8 +19,6 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const currentRoute = usePathname();
 
-  console.log(">>> Current route: ", currentRoute);
-
   const handleLogout = async () => {
     try {
       const result = await logout();
@@ -39,7 +37,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
   };
   return (
     <aside
-      className="h-full w-72 bg-white border-r border-[#cfdbe7] flex flex-col shadow-2xl lg:shadow-none overflow-y-auto no-scrollbar"
+      className="h-full w-72 bg-white border-r border-input-border flex flex-col shadow-2xl lg:shadow-none overflow-y-auto no-scrollbar"
       id="sidebar"
     >
       <div className="p-6">
@@ -76,10 +74,10 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
               )}
             </div>
             <div className="flex flex-col overflow-hidden">
-              <h1 className="text-[#0d141b] text-sm font-bold leading-tight truncate">
+              <h1 className="text-text-main text-sm font-bold leading-tight truncate">
                 {user!.full_name}
               </h1>
-              <p className="text-[#4c739a] text-xs font-medium truncate">
+              <p className="text-text-secondary text-xs font-medium truncate">
                 Chủ cho thuê
               </p>
             </div>
@@ -89,7 +87,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
                 currentRoute === "/profile"
                   ? "bg-blue-500 text-white shadow-md"
-                  : "text-[#4c739a] hover:bg-slate-100"
+                  : "text-text-secondary hover:bg-slate-100"
               }   shadow-blue-500/20 group transition-all`}
               href="/profile"
             >
@@ -104,7 +102,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
                 currentRoute === "/profile/listing-management"
                   ? "bg-blue-500 text-white shadow-md"
-                  : "text-[#4c739a] hover:bg-slate-100"
+                  : "text-text-secondary hover:bg-slate-100"
               }   shadow-blue-500/20 group transition-all`}
               href="/profile/listing-management"
             >
@@ -119,7 +117,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
                 currentRoute === "/profile/personal-information"
                   ? "bg-blue-500 text-white shadow-md"
-                  : "text-[#4c739a] hover:bg-slate-100"
+                  : "text-text-secondary hover:bg-slate-100"
               }   shadow-blue-500/20 group transition-all`}
               href="/profile/personal-information"
             >
@@ -131,7 +129,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
               </span>
             </Link>
             <Link
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4c739a] hover:bg-slate-100 transition-colors group"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-text-secondary hover:bg-slate-100 transition-colors group"
               href="#"
             >
               <span className="material-symbols-outlined group-hover:text-blue-500 transition-colors">
@@ -142,7 +140,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
               </span>
             </Link>
             <Link
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4c739a] hover:bg-slate-100 transition-colors group"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-text-secondary hover:bg-slate-100 transition-colors group"
               href="#"
             >
               <span className="material-symbols-outlined group-hover:text-blue-500 transition-colors">
@@ -155,7 +153,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
           </nav>
         </div>
       </div>
-      <div className="mt-auto p-6 border-t border-[#cfdbe7] flex flex-col gap-2 relative">
+      <div className="mt-auto p-6 border-t border-input-border flex flex-col gap-2 relative">
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-500 hover:bg-red-50 transition-colors group"

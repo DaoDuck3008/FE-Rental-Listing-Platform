@@ -108,10 +108,10 @@ export default function FillProfileModal({
               </button>
             </div>
             <div className="border-b border-slate-100 px-4 pb-3 text-center sm:px-5 sm:pb-4">
-              <h2 className="text-xl font-bold leading-tight text-[#0d141b] sm:text-2xl">
+              <h2 className="text-xl font-bold leading-tight text-text-main sm:text-2xl">
                 Hoàn thiện hồ sơ
               </h2>
-              <p className="mt-1 text-xs font-medium text-[#4c739a] sm:mt-2 sm:text-sm">
+              <p className="mt-1 text-xs font-medium text-text-secondary sm:mt-2 sm:text-sm">
                 Vui lòng cập nhật thông tin để chúng tôi có thể hỗ trợ bạn tốt
                 hơn trong việc tìm kiếm hoặc cho thuê.
               </p>
@@ -124,7 +124,7 @@ export default function FillProfileModal({
                   currentAvatar={userProfile?.avatar}
                   setAvatarCallback={(file) => setAvatar(file)}
                 />
-                <p className="text-xs text-[#4c739a] text-center sm:text-sm">
+                <p className="text-xs text-text-secondary text-center sm:text-sm">
                   Ảnh đại diện giúp hồ sơ của bạn trông đáng tin cậy hơn
                 </p>
               </div>
@@ -132,11 +132,11 @@ export default function FillProfileModal({
               <div className="md:w-2/3 flex flex-col gap-4 sm:gap-6">
                 {/* Role Selection */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-bold text-[#0d141b] sm:text-base">
+                  <label className="text-sm font-bold text-text-main sm:text-base">
                     Bạn là ai?
                   </label>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
-                    <label className="relative flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-transparent bg-[#f6f7f8] p-3 transition-all hover:bg-[#e7edf3] has-checked:border-blue-400 has-checked:bg-[#f3f8fe] has-checked:text-blue-400 sm:gap-2 sm:p-4">
+                    <label className="relative flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-transparent bg-bg-light p-3 transition-all hover:bg-border-color has-checked:border-blue-400 has-checked:bg-[#f3f8fe] has-checked:text-blue-400 sm:gap-2 sm:p-4">
                       <input
                         checked={
                           role
@@ -154,7 +154,7 @@ export default function FillProfileModal({
                       </span>
                     </label>
 
-                    <label className="relative flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-transparent bg-[#f6f7f8] p-3 transition-all hover:bg-[#e7edf3] has-checked:border-blue-400 has-checked:bg-[#f3f8fe] has-checked:text-blue-400 sm:gap-2 sm:p-4">
+                    <label className="relative flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-transparent bg-bg-light p-3 transition-all hover:bg-border-color has-checked:border-blue-400 has-checked:bg-[#f3f8fe] has-checked:text-blue-400 sm:gap-2 sm:p-4">
                       <input
                         checked={
                           role
@@ -175,15 +175,15 @@ export default function FillProfileModal({
 
                 {/* Phone */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-bold text-[#0d141b] sm:text-base">
+                  <label className="text-sm font-bold text-text-main sm:text-base">
                     Số điện thoại <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4c739a] sm:left-4">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary sm:left-4">
                       <Phone size={18} className="sm:size-auto" />
                     </span>
                     <input
-                      className="h-10 w-full rounded-lg border border-[#cfdbe7] bg-white pl-9 pr-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:pl-11 sm:pr-4 sm:text-base"
+                      className="h-10 w-full rounded-lg border border-input-border bg-white pl-9 pr-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:pl-11 sm:pr-4 sm:text-base"
                       placeholder="Nhập số điện thoại"
                       value={phone_number}
                       onChange={(e) => setPhoneNumber(e.target.value)}
@@ -193,9 +193,9 @@ export default function FillProfileModal({
 
                 {/* Gender */}
                 <div className="flex flex-col gap-2 sm:gap-3">
-                  <label className="text-sm font-bold text-[#0d141b] sm:text-base">
+                  <label className="text-sm font-bold text-text-main sm:text-base">
                     Giới tính
-                    <span className="ml-1 text-xs font-normal text-[#4c739a] sm:text-sm">
+                    <span className="ml-1 text-xs font-normal text-text-secondary sm:text-sm">
                       (Không bắt buộc)
                     </span>
                   </label>
@@ -247,7 +247,7 @@ export default function FillProfileModal({
                 </span>
               </button>
 
-              <p className="text-center text-xs text-[#4c739a]">
+              <p className="text-center text-xs text-text-secondary">
                 Bằng cách tiếp tục, bạn đồng ý với{" "}
                 <a className="underline hover:text-primary" href="#">
                   Điều khoản dịch vụ

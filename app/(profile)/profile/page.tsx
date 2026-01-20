@@ -36,10 +36,10 @@ export default function ProfilePage() {
       <div className=" mx-auto w-full p-4 ">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 lg:mb-8">
           <div className="flex flex-col gap-1">
-            <h2 className="text-[#0d141b] text-2xl lg:text-3xl font-black tracking-tight">
+            <h2 className="text-text-main text-2xl lg:text-3xl font-black tracking-tight">
               Tổng quan
             </h2>
-            <p className="text-[#4c739a] text-sm lg:text-base">
+            <p className="text-text-secondary text-sm lg:text-base">
               Chào mừng,
               <span className="font-bold text-blue-500">
                 {" "}
@@ -48,7 +48,7 @@ export default function ProfilePage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-white border border-[#cfdbe7] rounded-lg text-sm font-bold shadow-sm">
+            <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-white border border-input-border rounded-lg text-sm font-bold shadow-sm">
               <span className="material-symbols-outlined text-[20px] text-blue-500">
                 <Calendar />
               </span>
@@ -106,13 +106,13 @@ export default function ProfilePage() {
               </span>
               <span>Đăng tin mới</span>
             </button>
-            <button className="flex items-center justify-center gap-2 bg-white border border-[#cfdbe7] text-[#0d141b] px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation">
+            <button className="flex items-center justify-center gap-2 bg-white border border-input-border text-text-main px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation">
               <span className="material-symbols-outlined">
                 <FileSliders />
               </span>
               <span>Quản lý bài</span>
             </button>
-            <button className="flex items-center justify-center gap-2 bg-white border border-[#cfdbe7] text-[#0d141b] px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation">
+            <button className="flex items-center justify-center gap-2 bg-white border border-input-border text-text-main px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation">
               <span className="material-symbols-outlined">
                 <SquarePen />
               </span>
@@ -132,7 +132,7 @@ export default function ProfilePage() {
               </span>
               Hoạt động gần đây
             </h3>
-            <div className="bg-white border border-[#cfdbe7] rounded-xl divide-y divide-[#cfdbe7] shadow-sm flex-1">
+            <div className="bg-white border border-input-border rounded-xl divide-y divide-input-border shadow-sm flex-1">
               <div className="p-4 flex items-start sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors cursor-pointer">
                 <div className="flex items-start sm:items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
@@ -144,7 +144,9 @@ export default function ProfilePage() {
                     <p className="text-sm font-bold line-clamp-1">
                       Bài đăng "Căn hộ Studio Quận 1" đã được duyệt
                     </p>
-                    <p className="text-xs text-[#4c739a] mt-1">2 giờ trước</p>
+                    <p className="text-xs text-text-secondary mt-1">
+                      2 giờ trước
+                    </p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 text-sm">
@@ -162,7 +164,7 @@ export default function ProfilePage() {
                     <p className="text-sm font-bold line-clamp-1">
                       Bạn đã cập nhật thông tin cá nhân
                     </p>
-                    <p className="text-xs text-[#4c739a] mt-1">
+                    <p className="text-xs text-text-secondary mt-1">
                       Hôm qua, 14:20
                     </p>
                   </div>
@@ -182,7 +184,9 @@ export default function ProfilePage() {
                     <p className="text-sm font-bold line-clamp-1">
                       Bạn đã lưu tin "Nhà nguyên căn Gò Vấp"
                     </p>
-                    <p className="text-xs text-[#4c739a] mt-1">20/05/2024</p>
+                    <p className="text-xs text-text-secondary mt-1">
+                      20/05/2024
+                    </p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 text-sm">

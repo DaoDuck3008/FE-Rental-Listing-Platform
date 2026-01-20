@@ -1,1 +1,59 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* Custom Colors */
+  --color-primary: #137fec;
+  --color-primary-hover: #0f6bd0;
+  --color-background-light: #f6f7f8;
+  --color-text-main: #0d141b;
+  --color-text-secondary: #4c739a;
+  --color-border-color: #e7edf3;
+  --color-input-border: #cfdbe7;
+}
+
+/* Tiptap Content Styles - Fallback / Enforce */
+.ProseMirror {
+  outline: none;
+}
+.ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.ProseMirror h1 {
+  font-size: 2.25rem; /* text-4xl */
+  font-weight: 800;
+  line-height: 2.5rem;
+  margin-bottom: 1rem;
+}
+.ProseMirror h2 {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700;
+  line-height: 2.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+.ProseMirror h3 {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 600;
+  line-height: 2rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.ProseMirror p {
+  margin-bottom: 0.75rem;
+}
+.ProseMirror blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #4b5563;
+}

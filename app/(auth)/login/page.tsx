@@ -57,11 +57,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-background-light font-display text-[#0d141b]  min-h-screen flex flex-col">
+    <div className="bg-background-light font-display text-text-main  min-h-screen flex flex-col">
       <div className="grow flex items-center justify-center p-4">
         <div className="w-full max-w-120 bg-white  rounded-xl shadow-lg border border-slate-100  overflow-hidden">
           <div className="pt-8 px-8 pb-2 text-center">
-            <h1 className="text-[#0d141b]  text-[28px] font-bold leading-tight mb-2">
+            <h1 className="text-text-main  text-[28px] font-bold leading-tight mb-2">
               Đăng nhập
             </h1>
             <p className="text-slate-500  text-sm">
@@ -71,12 +71,12 @@ export default function LoginPage() {
           <div className="p-8 pt-6">
             <div className="flex flex-col gap-5">
               <label className="flex flex-col">
-                <span className="text-[#0d141b]  text-sm font-medium leading-normal pb-2">
+                <span className="text-text-main  text-sm font-medium leading-normal pb-2">
                   Đăng nhập bằng Email
                 </span>
                 <div className="relative">
                   <input
-                    className="form-input w-full rounded-lg text-[#0d141b]  border border-[#cfdbe7]  bg-slate-50 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-12 px-4 pl-11 text-base placeholder:text-[#94a3b8]"
+                    className="form-input w-full rounded-lg text-text-main  border border-input-border  bg-slate-50 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-12 px-4 pl-11 text-base placeholder:text-[#94a3b8]"
                     placeholder="Nhập email hoặc số điện thoại"
                     type="email"
                     name="email"
@@ -91,12 +91,12 @@ export default function LoginPage() {
                 </div>
               </label>
               <label className="flex flex-col">
-                <span className="text-[#0d141b]  text-sm font-medium leading-normal pb-2">
+                <span className="text-text-main  text-sm font-medium leading-normal pb-2">
                   Mật khẩu
                 </span>
                 <div className="relative flex w-full items-stretch rounded-lg">
                   <input
-                    className="form-input w-full rounded-lg rounded-r-none border border-[#cfdbe7]  border-r-0 bg-slate-50  focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:z-10 h-12 px-4 pl-11 text-[#0d141b]  placeholder:text-[#94a3b8]"
+                    className="form-input w-full rounded-lg rounded-r-none border border-input-border  border-r-0 bg-slate-50  focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:z-10 h-12 px-4 pl-11 text-text-main  placeholder:text-[#94a3b8]"
                     placeholder="Nhập mật khẩu"
                     type={visiblePassword ? "text" : "password"}
                     name="password"
@@ -110,7 +110,7 @@ export default function LoginPage() {
                   </div>
                   {visiblePassword && (
                     <button
-                      className="flex items-center justify-center px-3 rounded-r-lg border border-l-0 border-[#cfdbe7]  bg-slate-50  text-slate-400 hover:text-slate-600  transition-colors"
+                      className="flex items-center justify-center px-3 rounded-r-lg border border-l-0 border-input-border  bg-slate-50  text-slate-400 hover:text-slate-600  transition-colors"
                       type="button"
                       onClick={() => setVisiblePassword(false)}
                     >
@@ -122,7 +122,7 @@ export default function LoginPage() {
 
                   {!visiblePassword && (
                     <button
-                      className="flex items-center justify-center px-3 rounded-r-lg border border-l-0 border-[#cfdbe7]  bg-slate-50  text-slate-400 hover:text-slate-600  transition-colors"
+                      className="flex items-center justify-center px-3 rounded-r-lg border border-l-0 border-input-border  bg-slate-50  text-slate-400 hover:text-slate-600  transition-colors"
                       type="button"
                       onClick={() => setVisiblePassword(true)}
                     >
@@ -136,13 +136,13 @@ export default function LoginPage() {
               <div className="flex flex-wrap items-center justify-between gap-y-2">
                 <label className="flex items-center gap-2 cursor-pointer group">
                   <input
-                    className="custom-checkbox h-5 w-5 rounded border-[#cfdbe7]  border-2 bg-transparent text-blue-500 checked:bg-blue-500 checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none transition-all"
+                    className="custom-checkbox h-5 w-5 rounded border-input-border  border-2 bg-transparent text-blue-500 checked:bg-blue-500 checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none transition-all"
                     type="checkbox"
                     name="rememberMe"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                   />
-                  <span className="text-[#0d141b]  text-sm font-medium group-hover:text-blue-500 transition-colors">
+                  <span className="text-text-main  text-sm font-medium group-hover:text-blue-500 transition-colors">
                     Ghi nhớ đăng nhập
                   </span>
                 </label>

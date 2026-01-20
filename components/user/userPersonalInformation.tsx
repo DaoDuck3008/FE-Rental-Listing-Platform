@@ -66,8 +66,8 @@ export default function UserPersonalInformation() {
 
   return (
     <>
-      <div className="bg-white border border-[#cfdbe7] rounded-2xl overflow-hidden shadow-sm h-fit">
-        <div className="px-5 py-4 lg:px-6 lg:py-4 border-b border-[#cfdbe7] flex items-center justify-between bg-slate-50/50">
+      <div className="bg-white border border-input-border rounded-2xl overflow-hidden shadow-sm h-fit">
+        <div className="px-5 py-4 lg:px-6 lg:py-4 border-b border-input-border flex items-center justify-between bg-slate-50/50">
           <h3 className="font-bold text-base lg:text-lg flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-500 text-[20px]">
               <IdCard />
@@ -81,24 +81,24 @@ export default function UserPersonalInformation() {
         <div className="p-5 lg:p-6 grid grid-cols-1 gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-              <div className="flex items-center gap-3 text-[#4c739a]">
+              <div className="flex items-center gap-3 text-text-secondary">
                 <span className="material-symbols-outlined text-[20px]">
                   <ShieldCheck size={20} />
                 </span>
                 <span className="text-sm font-medium">Vai trò</span>
               </div>
-              <span className="font-bold text-sm text-[#0d141b]">
+              <span className="font-bold text-sm text-text-main">
                 {user?.role || "N/A"}
               </span>
             </div>
             <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-              <div className="flex items-center gap-3 text-[#4c739a]">
+              <div className="flex items-center gap-3 text-text-secondary">
                 <span className="material-symbols-outlined text-[20px]">
                   <CalendarDays size={20} />
                 </span>
                 <span className="text-sm font-medium">Gia nhập</span>
               </div>
-              <span className="font-bold text-sm text-[#0d141b]">
+              <span className="font-bold text-sm text-text-main">
                 {new Date(user?.created_at || "").toLocaleDateString(
                   "vi-VN",
                   {}
@@ -108,14 +108,14 @@ export default function UserPersonalInformation() {
           </div>
           <div className="grid grid-cols-1 gap-4 border-t border-slate-100 pt-4 mt-2">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 rounded-lg gap-2 hover:bg-slate-100 transition-colors">
-              <div className="flex items-center gap-3 text-[#4c739a]">
+              <div className="flex items-center gap-3 text-text-secondary">
                 <span className="material-symbols-outlined text-[20px]">
                   <Mail size={20} />
                 </span>
                 <span className="text-sm font-medium">Email</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-bold text-sm text-[#0d141b]">
+                <span className="font-bold text-sm text-text-main">
                   {showEmail ? user?.email || "N/A" : "************"}
                 </span>
                 <button
@@ -129,14 +129,14 @@ export default function UserPersonalInformation() {
               </div>
             </div>
             <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-              <div className="flex items-center gap-3 text-[#4c739a]">
+              <div className="flex items-center gap-3 text-text-secondary">
                 <span className="material-symbols-outlined text-[20px]">
                   <Phone size={20} />
                 </span>
                 <span className="text-sm font-medium">SĐT</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-bold text-sm text-[#0d141b]">
+                <span className="font-bold text-sm text-text-main">
                   {showPhoneNumber
                     ? user?.phone_number || "N/A"
                     : "************"}

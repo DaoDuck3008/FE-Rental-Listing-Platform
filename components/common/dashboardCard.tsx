@@ -22,9 +22,9 @@ export default function DashboardCard({
   bgIconColor,
 }: DashboardCardProps) {
   return (
-    <div className="bg-white border border-[#cfdbe7] rounded-xl p-5 lg:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-3 group">
+    <div className="bg-white border border-input-border rounded-xl p-5 lg:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-3 group">
       <div className="flex justify-between items-start">
-        <p className="text-[#4c739a] text-sm font-semibold">{title}</p>
+        <p className="text-text-secondary text-sm font-semibold">{title}</p>
         <div
           className={`p-2 bg-${bgIconColor} rounded-lg text-${
             textIconColor || iconColor
@@ -36,7 +36,7 @@ export default function DashboardCard({
         </div>
       </div>
       <div className="flex items-end gap-2">
-        <p className="text-[#0d141b] text-2xl lg:text-3xl font-extrabold">
+        <p className="text-text-main text-2xl lg:text-3xl font-extrabold">
           {value}
         </p>
         <span className="text-[#078838] text-xs lg:text-sm font-bold pb-1 bg-green-50 px-2 py-0.5 rounded-full">
