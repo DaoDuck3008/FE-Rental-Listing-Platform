@@ -20,7 +20,6 @@ export default function GuestGuard({ children }: Props) {
     }
 
     if (user) {
-      console.log("GuestGuard: User is logged in, redirecting...");
       toast.warning("Bạn không thể truy cập trang này khi đã đăng nhập.");
       router.replace("/");
     }

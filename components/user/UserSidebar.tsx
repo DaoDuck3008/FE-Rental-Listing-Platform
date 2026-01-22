@@ -42,7 +42,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
     >
       <div className="p-6">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10  rounded-lg flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/30">
               <span className="material-symbols-outlined">
                 <Handshake color="#137fec" size={30} />
@@ -51,7 +51,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
             <span className="text-xl font-extrabold tracking-tight text-blue-500 whitespace-nowrap">
               Rental House
             </span>
-          </div>
+          </Link>
           <button
             className="text-slate-400 cursor-pointer hover:text-blue-500 transition-colors p-1 rounded-lg hover:bg-slate-100"
             onClick={onClose}

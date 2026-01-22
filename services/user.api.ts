@@ -30,7 +30,16 @@ export const updateUserProfile = async (data: UserForm) => {
 
 export const getPersonalInformation = async () => {
   try {
-    return api.get("/api/users/profile");
+    return await api.get("/api/users/profile");
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const getPersonalInformationSWR = async () => {
+  try {
+    const res = await api.get("/api/users/profile");
+    return res.data;
   } catch (error: any) {
     throw error;
   }

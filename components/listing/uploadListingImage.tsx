@@ -1,15 +1,27 @@
 import { CloudUpload, Star, Trash2, Upload } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 export default function UploadListingImage({
   setFileCallback,
+  setCoverImageCallback,
 }: {
   setFileCallback: (files: File[] | null) => void;
+  setCoverImageCallback?: (coverImageIndex: number) => void;
 }) {
   const [coverImage, setCoverImage] = useState<string>("");
   const [previews, setPreviews] = useState<string[]>([]);
   const [file, setFile] = useState<File[] | null>(null);
+
+  // useEffect to notify parent about cover image changes
+  useEffect(() => {
+    if (coverImage && previews.length > 0) {
+      const coverIndex = previews.indexOf(coverImage);
+      if (coverIndex !== -1) {
+        setCoverImageCallback?.(coverIndex);
+      }
+    }
+  }, [coverImage, previews, setCoverImageCallback]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -22,10 +34,17 @@ export default function UploadListingImage({
 
       const imgUrls = acceptedFiles.map((img) => URL.createObjectURL(img));
 
-      setPreviews((prev) => [...prev, ...imgUrls]);
-      setCoverImage((prev) => prev || imgUrls[0]);
+      setPreviews((prev) => {
+        const newPreviews = [...prev, ...imgUrls];
+        return newPreviews;
+      });
+
+      // Set first image as cover if no cover exists
+      if (!coverImage && imgUrls[0]) {
+        setCoverImage(imgUrls[0]);
+      }
     },
-    [file, setFileCallback]
+    [file, setFileCallback, coverImage]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -53,6 +72,7 @@ export default function UploadListingImage({
     URL.revokeObjectURL(imageToRemove);
     setPreviews(newPreviews);
 
+    // If removed image was the cover, set first image as new cover
     if (coverImage === imageToRemove) {
       setCoverImage(newPreviews[0] || "");
     }

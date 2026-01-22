@@ -4,7 +4,6 @@ import DescriptionEditor from "@/components/common/descriptionEditor";
 import UploadListingImage from "@/components/listing/uploadListingImage";
 import { useAmenities } from "@/hooks/useAmenities";
 import { useProvinces, useWardsByProvince } from "@/hooks/useProvinces";
-import { validateHeaderName } from "http";
 import {
   ChevronDown,
   CloudUpload,
@@ -19,24 +18,16 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-interface createListingProps {
-  title: string;
-  listing_type_code: string;
-  capacity: number;
-  price: number;
-  area: number;
-  beds: number;
-  bathrooms: number;
-  province_code: number | null;
-  ward_code: number | null;
-  address: string;
-  amenities: string[];
-  images?: File[];
-  description: string;
-  showPhoneNumber: boolean;
-}
-
 import BackButton from "@/components/common/backButton";
+import { useUserInfo } from "@/hooks/useUserInfo";
+import { toast } from "react-toastify";
+import createListingProps from "@/types/listing.type";
+import { CreateListingValidate } from "@/schema/Listing.validator";
+import { useListingTypes } from "@/hooks/useListing";
+import { createListing } from "@/services/listing.api";
+import { useRouter } from "next/navigation";
+import LoadingOverlay from "@/components/common/loadingOverlay";
+import SuccessModal from "@/components/listing/successModal";
 
 export default function CreateNewListingPage() {
   const [form, setForm] = useState<createListingProps>({
@@ -54,13 +45,39 @@ export default function CreateNewListingPage() {
     description: "",
     showPhoneNumber: true,
   });
+  const router = useRouter();
+
   const [images, setImages] = useState<File[] | null>(null);
+  const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const { provinces, isLoading: provinceIsLoading } = useProvinces();
   const { wards, isLoading: wardIsLoading } = useWardsByProvince(
     form.province_code
   );
   const { amenities, isLoading: amenitiesIsLoading } = useAmenities();
+  const { listingTypes, isLoading: listingTypesIsLoading } = useListingTypes();
+  const {
+    userInfo,
+    isLoading: userInfoIsLoading,
+    isError: userError,
+  } = useUserInfo();
+
+  if (userError) {
+    const res = userError.response.data;
+
+    switch (res.error) {
+      case "Unauthorized":
+        toast.error(res.message);
+        return;
+
+      default:
+        toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau!");
+        console.error(userError);
+        return;
+    }
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -125,10 +142,45 @@ export default function CreateNewListingPage() {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log(">>> form: ", form);
-  };
+  const handleSubmit = async () => {
+    try {
+      if (!CreateListingValidate({ form, images })) return;
 
+      setIsSubmitting(true);
+      const res = await createListing(form, images, coverImageIndex);
+      setIsSubmitting(false);
+
+      if (res.status === 201) {
+        setIsSuccess(true);
+        return;
+      }
+      return;
+    } catch (error: any) {
+      setIsSubmitting(false);
+      const res = error.response?.data;
+      if (!res) {
+        toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau!");
+        return;
+      }
+
+      switch (res.error) {
+        case "VALIDATION_ERROR":
+          res.errors.forEach((err: { field: string; message: string }) => {
+            toast.error(err.message);
+          });
+          break;
+        case "UPLOAD_ERROR":
+          toast.error(res.message);
+          break;
+        default:
+          toast.error(res.message || "Đã có lỗi xảy ra!");
+          console.error(error);
+          break;
+      }
+
+      return;
+    }
+  };
 
   return (
     <>
@@ -192,10 +244,12 @@ export default function CreateNewListingPage() {
                       className="w-full h-12 px-4 appearance-none rounded-lg border border-input-border bg-white text-text-main focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     >
                       <option value="">Chọn loại hình</option>
-                      <option value="phong-tro">Phòng trọ</option>
-                      <option value="can-ho">Căn hộ chung cư</option>
-                      <option value="nha-nguyen-can">Nhà nguyên căn</option>
-                      <option value="o-ghep">Tìm người ở ghép</option>
+                      {listingTypes &&
+                        listingTypes.map((lt: any) => (
+                          <option key={lt.code} value={lt.code}>
+                            {lt.name}
+                          </option>
+                        ))}
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-text-secondary">
                       <span className="material-symbols-outlined">
@@ -397,6 +451,9 @@ export default function CreateNewListingPage() {
                     Địa chỉ chính xác <span className="text-red-500">*</span>
                   </label>
                   <input
+                    value={form.address || ""}
+                    name="address"
+                    onChange={handleChange}
                     className="w-full h-12 px-4 rounded-lg border border-input-border bg-white text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     placeholder="Số nhà, tên đường, khu dân cư..."
                     type="text"
@@ -436,6 +493,7 @@ export default function CreateNewListingPage() {
               <div className="p-6">
                 <UploadListingImage
                   setFileCallback={(files) => setImages(files)}
+                  setCoverImageCallback={(index) => setCoverImageIndex(index)}
                 />
               </div>
             </section>
@@ -460,15 +518,15 @@ export default function CreateNewListingPage() {
                   {amenities &&
                     !amenitiesIsLoading &&
                     amenities.map((amenity: any) => {
-                      const isSelected = form.amenities.includes(amenity.name);
+                      const isSelected = form.amenities.includes(amenity.id);
                       const IconComponent =
                         icons[amenity.icon as keyof typeof icons] || Sparkles;
 
                       return (
                         <button
-                          key={amenity.name}
+                          key={amenity.id}
                           type="button"
-                          onClick={() => handleAmenityToggle(amenity.name)}
+                          onClick={() => handleAmenityToggle(amenity.id)}
                           className={`flex flex-col items-center justify-center gap-3 p-4 rounded-xl border transition-all duration-200 ${
                             isSelected
                               ? "border-primary bg-primary/5 text-primary shadow-sm"
@@ -524,7 +582,8 @@ export default function CreateNewListingPage() {
                   <input
                     className="w-full h-12 px-4 rounded-lg border border-input-border bg-gray-200 text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     type="text"
-                    value="Nguyễn Văn A"
+                    name="full_name"
+                    value={userInfo?.full_name ?? ""}
                     disabled={true}
                   />
                 </div>
@@ -535,7 +594,8 @@ export default function CreateNewListingPage() {
                   <input
                     className="w-full h-12 px-4 rounded-lg border border-input-border bg-gray-200 text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     type="tel"
-                    value="0912345678"
+                    value={userInfo?.phone_number ?? ""}
+                    name="phone_number"
                     disabled={true}
                   />
                 </div>
@@ -589,6 +649,10 @@ export default function CreateNewListingPage() {
           </form>
         </div>
       </main>
+
+      {/* MODALS & OVERLAYS */}
+      {isSubmitting && <LoadingOverlay message="Đang đăng bài viết..." />}
+      <SuccessModal isOpen={isSuccess} redirectPath="/" delay={5000} />
     </>
   );
 }

@@ -83,7 +83,7 @@ export default function UserDropdown({ user, onLogout }: Props) {
           </Link>
 
           <Link
-            href="/post/create"
+            href="/listing-create"
             className="block px-4 py-2 text-sm hover:bg-slate-100"
           >
             Đăng tin
