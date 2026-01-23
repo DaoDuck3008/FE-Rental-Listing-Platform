@@ -28,6 +28,7 @@ import { createListing } from "@/services/listing.api";
 import { useRouter } from "next/navigation";
 import LoadingOverlay from "@/components/common/loadingOverlay";
 import SuccessModal from "@/components/listing/successModal";
+import { mutate } from "swr";
 
 export default function CreateNewListingPage() {
   const [form, setForm] = useState<createListingProps>({

@@ -7,6 +7,7 @@ import { logout } from "@/services/auth.api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { ChevronDown, User } from "lucide-react";
+import { mutate } from "swr";
 
 interface Props {
   user: {
@@ -32,6 +33,10 @@ export default function UserDropdown({ user, onLogout }: Props) {
   const handleLogout = async () => {
     try {
       const result = await logout();
+
+      mutate((key) => Array.isArray(key) && key[0] === "user-info", undefined, {
+        revalidate: false,
+      });
     } catch (error: any) {
       if (error.status === 401) {
         toast.warning("Bạn chưa đăng nhập");

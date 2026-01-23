@@ -3,8 +3,12 @@ import useSWR from "swr";
 
 export const useAmenities = () => {
   const { data, error, isLoading } = useSWR("amenities", getAllAmenities, {
-    revalidateOnFocus: false,
-    dedupingInterval: 3 * 60 * 60 * 1000,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+    revalidateIfStale: true,
+
+    dedupingInterval: 2000,
+    shouldRetryOnError: false,
   });
 
   return {

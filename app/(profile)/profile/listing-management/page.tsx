@@ -2,18 +2,80 @@
 
 import PostButton from "@/components/common/postBtn";
 import ListingTableBody from "@/components/listing/listingTableBody";
+import { getMyListings } from "@/services/listing.api";
 import {
   ArrowDownWideNarrow,
   Search,
   ChevronsDown,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+
+interface Listing {
+  id: string;
+  title: string;
+  price: string;
+  address: string;
+  views: number;
+  status: string;
+  created_at: string;
+  images: { image_url: string }[];
+}
+
+interface Pagination {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
 
 export default function ListingManagementPage() {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [limit, setLimit] = useState<number>(10);
+  const [inputLimit, setInputLimit] = useState<string>("10");
+  const [page, setPage] = useState<number>(1);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+
+  // Debounce limit input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const val = parseInt(inputLimit);
+      if (!isNaN(val) && val >= 1 && val <= 10) {
+        setLimit(val);
+        setPage(1);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [inputLimit]);
+
+  useEffect(() => {
+    const callMyListings = async () => {
+      try {
+        const result = await getMyListings({ limit, page });
+        const { data, pagination } = result;
+        setListings(data);
+        setPagination(pagination);
+      } catch (error: any) {
+        const res = error.response?.data;
+        if (res?.error === "UNAUTHORIZED" || res?.error === "FORBIDDEN") {
+          toast.error(res.message);
+        } else if (res?.error === "DATABASE_ERROR") {
+          toast.error("Có lỗi ở phía cơ sở dữ liệu");
+        } else {
+          toast.error("Có lỗi xảy ra.");
+          console.error(error);
+        }
+      }
+    };
+    callMyListings();
+  }, [page, limit]);
 
   return (
     <>
@@ -79,7 +141,7 @@ export default function ListingManagementPage() {
             {/* <!-- Quick Filter Chips --> */}
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
               <button className="px-3 py-1.5 rounded-full bg-slate-800 text-white text-xs font-semibold transition-colors">
-                Tất cả (12)
+                Tất cả ({pagination?.totalItems || 0})
               </button>
               <button className="px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold transition-colors">
                 Đang hiển thị (5)
@@ -117,58 +179,136 @@ export default function ListingManagementPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  <ListingTableBody
-                    title="Phòng trọ khép kín gần ĐH Bách Khoa, đầy đủ tiện nghi"
-                    address="Đống Đa, Hà Nội"
-                    price={3000000}
-                    views={125}
-                    status="PUBLISHED"
-                  />
-                  <ListingTableBody
-                    title="Phòng trọ khép kín gần ĐH Bách Khoa, đầy đủ tiện nghi"
-                    address="Đống Đa, Hà Nội"
-                    price={3000000}
-                    views={12500}
-                    status="PUBLISHED"
-                  />
-                  <ListingTableBody
-                    title="Phòng trọ khép kín gần ĐH Bách Khoa, đầy đủ tiện nghi"
-                    address="Đống Đa, Hà Nội"
-                    price={3000000}
-                    views={125}
-                    status="PUBLISHED"
-                  />
+                  {listings.length > 0 ? (
+                    listings.map((listing) => (
+                      <ListingTableBody
+                        key={listing.id}
+                        title={listing.title}
+                        address={listing.address}
+                        price={Number(listing.price)}
+                        views={listing.views}
+                        status={listing.status}
+                        createdAt={listing.created_at}
+                        img_url={listing.images[0]?.image_url}
+                      />
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-6 py-10 text-center text-slate-500"
+                      >
+                        Chưa có tin đăng nào.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/50">
-              <p className="text-sm text-slate-500">
-                Hiển thị
-                <span className="font-bold text-slate-700">1-4</span> trong
-                <span className="font-bold text-slate-700">12</span> tin
-              </p>
-              <div className="flex items-center gap-2">
-                <button className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed">
-                  <span className="material-symbols-outlined text-[18px]">
-                    <ChevronLeft />
-                  </span>
+            <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 gap-4 border-t border-slate-200 bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <p className="text-sm text-slate-500 whitespace-nowrap">
+                  Hiển thị{" "}
+                  {pagination
+                    ? (pagination.page - 1) * pagination.limit + 1
+                    : 0}{" "}
+                  -{" "}
+                  {pagination
+                    ? Math.min(
+                        pagination.page * pagination.limit,
+                        pagination.totalItems
+                      )
+                    : 0}{" "}
+                  trong {pagination?.totalItems || 0} tin | Mỗi trang:
+                </p>
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={inputLimit}
+                  onChange={(e) => setInputLimit(e.target.value)}
+                  onBlur={() => {
+                    const val = parseInt(inputLimit);
+                    if (isNaN(val) || val < 1) setInputLimit("1");
+                    else if (val > 10) setInputLimit("10");
+                  }}
+                  className="w-16 h-8 px-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                {/* First Page */}
+                <button
+                  onClick={() => setPage(1)}
+                  disabled={page === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  title="Trang đầu"
+                >
+                  <ChevronsLeft size={16} />
                 </button>
-                <button className="w-8 h-8 rounded-lg bg-blue-500 text-white text-sm font-bold shadow-sm">
-                  1
+
+                {/* Prev */}
+                <button
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={page === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft size={16} />
                 </button>
-                <button className="w-8 h-8 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
-                  2
+
+                <div className="flex items-center gap-1 mx-1">
+                  {Array.from(
+                    { length: pagination?.totalPages || 0 },
+                    (_, i) => i + 1
+                  )
+                    .filter(
+                      (p) =>
+                        Math.abs(p - page) <= 1 ||
+                        p === 1 ||
+                        p === pagination?.totalPages
+                    )
+                    .map((p, index, array) => (
+                      <div key={p} className="flex items-center">
+                        {index > 0 && array[index - 1] !== p - 1 && (
+                          <span className="text-slate-400 px-1">...</span>
+                        )}
+                        <button
+                          onClick={() => setPage(p)}
+                          className={`w-8 h-8 rounded-lg text-sm font-bold transition-all ${
+                            page === p
+                              ? "bg-blue-500 text-white shadow-md"
+                              : "text-slate-600 hover:bg-white hover:border-slate-300 border border-transparent font-medium"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Next */}
+                <button
+                  onClick={() =>
+                    setPage((prev) =>
+                      Math.min(prev + 1, pagination?.totalPages || 1)
+                    )
+                  }
+                  disabled={page === (pagination?.totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight size={16} />
                 </button>
-                <button className="w-8 h-8 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
-                  3
-                </button>
-                <span className="text-slate-400">...</span>
-                <button className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-white">
-                  <span className="material-symbols-outlined text-[18px]">
-                    <ChevronRight />
-                  </span>
+
+                {/* Last Page */}
+                <button
+                  onClick={() => setPage(pagination?.totalPages || 1)}
+                  disabled={page === (pagination?.totalPages || 1)}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  title="Trang cuối"
+                >
+                  <ChevronsRight size={16} />
                 </button>
               </div>
             </div>

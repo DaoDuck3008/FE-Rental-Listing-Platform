@@ -52,12 +52,13 @@ export default function ListingTableBody({
     <tr className="group hover:bg-slate-50 transition-colors">
       <td className="px-6 py-4">
         <div className="flex gap-4 items-start">
-          <div className="w-20 h-16 rounded-lg bg-slate-200 overflow-hidden shrink-0">
-            <div className="w-full h-full ">
-              <img src={img_url || "/NoImage.jpg"} className="object-cover" />
-            </div>
+          <div className=" rounded-lg bg-slate-200 overflow-hidden shrink-0">
+            <img
+              src={img_url || "/NoImage.jpg"}
+              className="object-cover w-20 h-16"
+            />
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 cursor-pointer">
             <p className="text-sm font-bold text-slate-900 line-clamp-2 group-hover:text-blue-500 transition-colors">
               {title}
             </p>
@@ -104,7 +105,7 @@ export default function ListingTableBody({
       <td className="px-6 py-4">
         <div className="flex items-center justify-end gap-2">
           <button
-            className="p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
+            className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
             title="Đẩy tin lên đầu"
           >
             <span className="material-symbols-outlined text-[20px]">
@@ -112,7 +113,7 @@ export default function ListingTableBody({
             </span>
           </button>
           <button
-            className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+            className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             title="Chỉnh sửa"
           >
             <span className="material-symbols-outlined text-[20px]">
@@ -120,7 +121,7 @@ export default function ListingTableBody({
             </span>
           </button>
           <button
-            className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             title="Xóa tin"
           >
             <span className="material-symbols-outlined text-[20px]">

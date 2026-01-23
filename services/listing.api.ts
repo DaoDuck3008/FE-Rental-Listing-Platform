@@ -6,6 +6,19 @@ export const getAllListingTypesSWR = async () => {
   return res.data;
 };
 
+export const getMyListings = async ({
+  limit,
+  page,
+}: {
+  limit?: number;
+  page?: number;
+}) => {
+  const res = await api.get(
+    `/api/listings/my-listings?limit=${limit}&page=${page}`
+  );
+  return res.data;
+};
+
 export const createListing = async (
   listingForm: createListingProps,
   files: File[] | null,
