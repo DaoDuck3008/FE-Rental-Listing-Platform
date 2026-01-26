@@ -79,4 +79,21 @@ export const CreateListingValidate = ({
   return true;
 };
 
+export const CreateDraftListingValidate = ({
+  form,
+}: {
+  form: Partial<createListingProps>;
+}): boolean => {
+  // For drafts, we require at least a non-empty title
+  if (!form.title || form.title.trim() === "") {
+    toast.warning("Vui lòng nhập ít nhất tiêu đề để lưu bản nháp!");
+    return false;
+  }
 
+  if (form.title && form.title.length > 255) {
+    toast.warning("Tiêu đề không được vượt quá 255 ký tự!");
+    return false;
+  }
+
+  return true;
+};

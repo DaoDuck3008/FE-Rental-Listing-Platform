@@ -1,3 +1,4 @@
+import { create } from "zustand";
 import createListingProps from "@/types/listing.type";
 import { api } from "./api";
 
@@ -48,6 +49,109 @@ export const createListing = async (
   return api.post("/api/listings/create", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const createDraftListing = async (
+  listingForm: Partial<createListingProps>,
+  files: File[] | null,
+  coverImageIndex: number
+) => {
+  const formData = new FormData();
+
+  Object.entries(listingForm).forEach(([key, value]) => {
+    // Handle arrays (amenities)
+    if (Array.isArray(value)) {
+      formData.append(key, value.join(","));
+    }
+    // Handle other values
+    else {
+      formData.append(key, String(value));
+    }
+  });
+
+  if (files) {
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+  }
+
+  formData.append("coverImageIndex", String(coverImageIndex));
+
+  return api.post("/api/listings/draft", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const getListingDetail = async (id: string) => {
+  const res = await api.get(`/api/listings/${id}`);
+  return res.data;
+};
+
+export const updateDraftListing = async (
+  id: string,
+  listingForm: Partial<createListingProps>,
+  files: File[] | null,
+  coverImageIndex: number
+) => {
+  const formData = new FormData();
+
+  Object.entries(listingForm).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      formData.append(key, value.join(","));
+    } else if (value !== null && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+
+  if (files) {
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+  }
+
+  formData.append("coverImageIndex", String(coverImageIndex));
+
+  return api.patch(`/api/listings/${id}/draft`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const submitDraftListing = async (
+  id: string,
+  listingForm: createListingProps,
+  files: File[] | null,
+  coverImageIndex: string | number
+) => {
+  const formData = new FormData();
+
+  Object.entries(listingForm).forEach(([key, value]) => {
+    // Handle arrays (amenities)
+    if (Array.isArray(value)) {
+      formData.append(key, value.join(","));
+    }
+    // Handle other values
+    else {
+      formData.append(key, String(value));
+    }
+  });
+
+  if (files) {
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+  }
+
+  formData.append("coverImageIndex", String(coverImageIndex));
+
+  return api.post(`/api/listings/${id}/submit`, formData, {
+    headers: {
+      "Content-Type": "mutlipart/form-data",
     },
   });
 };

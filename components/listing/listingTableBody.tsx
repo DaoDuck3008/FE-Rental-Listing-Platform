@@ -1,11 +1,4 @@
-import {
-  ArrowUpFromLine,
-  CalendarFold,
-  Eye,
-  MapPin,
-  Pen,
-  Trash2,
-} from "lucide-react";
+import { CalendarFold, Eye, MapPin, Pen, Trash2 } from "lucide-react";
 import {
   formatVietnameseDate,
   formatVietnamesePrice,
@@ -13,8 +6,10 @@ import {
   getStatusStyle,
   formatViews,
 } from "@/utils";
+import { useRouter } from "next/navigation";
 
 interface ListingTableBodyProps {
+  id: string;
   img_url?: string;
   title: string;
   address: string;
@@ -25,6 +20,7 @@ interface ListingTableBodyProps {
 }
 
 export default function ListingTableBody({
+  id,
   img_url,
   title,
   address,
@@ -33,6 +29,8 @@ export default function ListingTableBody({
   views,
   status,
 }: ListingTableBodyProps) {
+  const router = useRouter();
+
   // Lấy trạng thái tiếng Việt
   const vietnameseStatus = getVietnameseStatus(status);
 
@@ -47,6 +45,10 @@ export default function ListingTableBody({
 
   // Format số lượt xem
   const formattedViews = formatViews(views);
+
+  const openListing = (listingId: string) => {
+    router.replace(`/listing-update-draft/${listingId}`);
+  };
 
   return (
     <tr className="group hover:bg-slate-50 transition-colors">
@@ -104,17 +106,20 @@ export default function ListingTableBody({
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center justify-end gap-2">
-          <button
-            className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
-            title="Đẩy tin lên đầu"
-          >
-            <span className="material-symbols-outlined text-[20px]">
-              <ArrowUpFromLine size={15} />
-            </span>
-          </button>
+          {status !== "DRAFT" && (
+            <button
+              className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
+              title="Xem tin"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                <Eye size={15} />
+              </span>
+            </button>
+          )}
           <button
             className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             title="Chỉnh sửa"
+            onClick={() => openListing(id)}
           >
             <span className="material-symbols-outlined text-[20px]">
               <Pen size={15} />

@@ -183,6 +183,7 @@ export default function ListingManagementPage() {
                     listings.map((listing) => (
                       <ListingTableBody
                         key={listing.id}
+                        id={listing.id}
                         title={listing.title}
                         address={listing.address}
                         price={Number(listing.price)}

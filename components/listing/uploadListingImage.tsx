@@ -5,13 +5,58 @@ import { useDropzone } from "react-dropzone";
 export default function UploadListingImage({
   setFileCallback,
   setCoverImageCallback,
+  initialPreviews = [],
 }: {
   setFileCallback: (files: File[] | null) => void;
   setCoverImageCallback?: (coverImageIndex: number) => void;
+  initialPreviews?: string[];
 }) {
   const [coverImage, setCoverImage] = useState<string>("");
   const [previews, setPreviews] = useState<string[]>([]);
   const [file, setFile] = useState<File[] | null>(null);
+
+  // Initialize previews and cover image from initialPreviews
+  useEffect(() => {
+    const convertUrlsToFiles = async () => {
+      if (
+        initialPreviews &&
+        initialPreviews.length > 0 &&
+        previews.length === 0 &&
+        (!file || file.length === 0)
+      ) {
+        // Tạm thời hiển thị URL gốc để người dùng thấy ngay
+        setPreviews(initialPreviews);
+        setCoverImage(initialPreviews[0]);
+
+        // Chuyển đổi URLs thành Files bí mật đằng sau
+        const filePromises = initialPreviews.map(async (url, index) => {
+          try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const fileName = url.split("/").pop() || `old-image-${index}`;
+            return new File([blob], fileName, { type: blob.type });
+          } catch (error) {
+            console.error("Error converting URL to File:", error);
+            return null;
+          }
+        });
+
+        const files = (await Promise.all(filePromises)).filter(
+          (f): f is File => f !== null
+        );
+
+        // Sau khi có Files, cập nhật lại previews sang blob URLs để quản lý đồng nhất
+        const blobUrls = files.map((f) => URL.createObjectURL(f));
+        setFile(files);
+        setPreviews(blobUrls);
+        setCoverImage(blobUrls[0]);
+        setFileCallback(files);
+      }
+    };
+
+    convertUrlsToFiles();
+  }, [initialPreviews]);
+
 
   // useEffect to notify parent about cover image changes
   useEffect(() => {
@@ -40,11 +85,11 @@ export default function UploadListingImage({
       });
 
       // Set first image as cover if no cover exists
-      if (!coverImage && imgUrls[0]) {
-        setCoverImage(imgUrls[0]);
+      if (!coverImage && (imgUrls[0] || initialPreviews[0])) {
+        setCoverImage(imgUrls[0] || initialPreviews[0]);
       }
     },
-    [file, setFileCallback, coverImage]
+    [file, setFileCallback, coverImage, initialPreviews]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -62,14 +107,15 @@ export default function UploadListingImage({
   const removeImage = (index: number) => {
     if (!file) return;
 
-    const newFiles = file.filter((_, i) => i !== index);
+    const imageToRemove = previews[index];
+    const newFiles = [...file];
+    newFiles.splice(index, 1);
+
     setFile(newFiles);
     setFileCallback(newFiles);
-
-    const imageToRemove = previews[index];
-    const newPreviews = previews.filter((_, i) => i !== index);
-
     URL.revokeObjectURL(imageToRemove);
+
+    const newPreviews = previews.filter((_, i) => i !== index);
     setPreviews(newPreviews);
 
     // If removed image was the cover, set first image as new cover
@@ -77,6 +123,8 @@ export default function UploadListingImage({
       setCoverImage(newPreviews[0] || "");
     }
   };
+
+
 
   return (
     <>
