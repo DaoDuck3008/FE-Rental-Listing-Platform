@@ -14,3 +14,13 @@ export const getWardsByProvince = async (province_code: number) => {
   const res = await provinceApi.get(`/w?province=${province_code}`);
   return res.data;
 };
+
+export const getProvinceById = async (code: string | number) => {
+  const res = await provinceApi.get(`/p/${code}`);
+  return res.data;
+};
+
+export const getWardById = async (code: string | number) => {
+  const res = await provinceApi.get(`/w/${code}`);
+  return res.data;
+};

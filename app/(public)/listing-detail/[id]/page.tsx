@@ -24,6 +24,8 @@ import NotFoundPage from "@/app/not-found";
 import { formatVietnamesePrice } from "@/utils";
 import ListingComments from "@/components/listing/listingComments";
 import Avatar from "@/components/common/avatar";
+import LoadingOverlay from "@/components/common/loadingOverlay";
+import Icon from "@/components/ui/icon";
 
 export default function ListingDetailPage() {
   const { id } = useParams();
@@ -39,9 +41,14 @@ export default function ListingDetailPage() {
         if (res.success) {
           setListing(res.data);
         }
-      } catch (error) {
+      } catch (error: any) {
+        const res = error.response.data;
+        if (res.error === "NOT_FOUND") {
+          return;
+        }
+
         console.error("Error fetching listing detail:", error);
-        toast.error("Không thể tải thông tin bài đăng");
+        toast.error("Đã có lỗi xảy ra");
       } finally {
         setIsLoading(false);
       }
@@ -51,11 +58,7 @@ export default function ListingDetailPage() {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LoadingOverlay />;
   }
 
   if (!listing) {
@@ -68,8 +71,8 @@ export default function ListingDetailPage() {
     <main className="grow layout-container flex flex-col w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-10 py-5">
       {/* Breadcrumb */}
       <ListingBreadcrumb
-        province={{ label: listing.province || "TP. Hồ Chí Minh", href: "/" }}
-        ward={{ label: listing.district || "Quận 1", href: "/" }}
+        province_code={listing.province_code}
+        ward_code={listing.ward_code}
         title={listing.title}
       />
 
@@ -165,9 +168,7 @@ export default function ListingDetailPage() {
                   key={amenity.id}
                   className="flex items-center gap-3 text-slate-700"
                 >
-                  <span className="material-symbols-outlined text-[#92adc9]">
-                    {amenity.icon || "check_circle"}
-                  </span>
+                  <Icon icon={amenity.icon} className="text-[#92adc9]" />
                   <span className="text-sm font-medium">{amenity.name}</span>
                 </div>
               ))}
