@@ -7,6 +7,10 @@ import {
   formatViews,
 } from "@/utils";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { deleteListing } from "@/services/listing.api";
+import ConfirmDeleteModal from "./confirmDeleteModal";
 
 interface ListingTableBodyProps {
   id: string;
@@ -30,6 +34,41 @@ export default function ListingTableBody({
   status,
 }: ListingTableBodyProps) {
   const router = useRouter();
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+
+  const handleDeleteListing = async () => {
+    try {
+      const result = await deleteListing(id as string);
+
+      if (
+        result.status === 200 ||
+        result.status === 201 ||
+        result.status === 204
+      ) {
+        toast.success("Xóa bài thành công");
+        router.replace("/profile");
+      }
+      return;
+    } catch (error: any) {
+      const res = error.response.data;
+      switch (res.error) {
+        case "NOT_FOUND":
+          toast.error(res.message);
+          break;
+        case "UNAUTHORIZED":
+          toast.error(res.message);
+          break;
+        case "BUSINESS_RULE_VALIDATION":
+          toast.error(res.message);
+          break;
+        default:
+          toast.error(res.message ?? "Lỗi không xác định.");
+          console.error(error);
+          break;
+      }
+      return;
+    }
+  };
 
   // Lấy trạng thái tiếng Việt
   const vietnameseStatus = getVietnameseStatus(status);
@@ -46,8 +85,8 @@ export default function ListingTableBody({
   // Format số lượt xem
   const formattedViews = formatViews(views);
 
-  const openListing = (listingId: string) => {
-    router.replace(`/listing-update-draft/${listingId}`);
+  const openListingDetail = (listingId: string) => {
+    router.replace(`/profile/my-listing-detail/${listingId}`);
   };
 
   return (
@@ -110,6 +149,7 @@ export default function ListingTableBody({
             <button
               className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
               title="Xem tin"
+              onClick={() => openListingDetail(id)}
             >
               <span className="material-symbols-outlined text-[20px]">
                 <Eye size={15} />
@@ -119,7 +159,6 @@ export default function ListingTableBody({
           <button
             className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             title="Chỉnh sửa"
-            onClick={() => openListing(id)}
           >
             <span className="material-symbols-outlined text-[20px]">
               <Pen size={15} />
@@ -128,12 +167,19 @@ export default function ListingTableBody({
           <button
             className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             title="Xóa tin"
+            onClick={() => setOpenDeleteModal(true)}
           >
             <span className="material-symbols-outlined text-[20px]">
               <Trash2 size={15} />
             </span>
           </button>
         </div>
+        {openDeleteModal && (
+          <ConfirmDeleteModal
+            OnClose={() => setOpenDeleteModal(false)}
+            OnSubmit={() => handleDeleteListing()}
+          />
+        )}
       </td>
     </tr>
   );

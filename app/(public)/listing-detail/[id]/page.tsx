@@ -26,6 +26,7 @@ import ListingComments from "@/components/listing/listingComments";
 import Avatar from "@/components/common/avatar";
 import LoadingOverlay from "@/components/common/loadingOverlay";
 import Icon from "@/components/ui/icon";
+import BackButton from "@/components/common/backButton";
 
 export default function ListingDetailPage() {
   const { id } = useParams();
@@ -69,6 +70,9 @@ export default function ListingDetailPage() {
 
   return (
     <main className="grow layout-container flex flex-col w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-10 py-5">
+      {/* Back button */}
+      <BackButton />
+
       {/* Breadcrumb */}
       <ListingBreadcrumb
         province_code={listing.province_code}

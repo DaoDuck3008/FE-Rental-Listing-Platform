@@ -1,4 +1,3 @@
-import { create } from "zustand";
 import createListingProps from "@/types/listing.type";
 import { api } from "./api";
 
@@ -91,6 +90,11 @@ export const getListingDetail = async (id: string) => {
   return res.data;
 };
 
+export const getMyListingDetail = async (id: string) => {
+  const res = await api.get(`/api/listings/my-listings/${id}`);
+  return res.data;
+};
+
 export const updateDraftListing = async (
   id: string,
   listingForm: Partial<createListingProps>,
@@ -154,4 +158,8 @@ export const submitDraftListing = async (
       "Content-Type": "mutlipart/form-data",
     },
   });
+};
+
+export const deleteListing = async (listingId: string) => {
+  return api.delete(`/api/listings/${listingId}`);
 };
