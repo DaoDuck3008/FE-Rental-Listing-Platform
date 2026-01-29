@@ -11,9 +11,16 @@ import Toolbar from "./toolBar";
 interface Props {
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  editorAttributes?: Record<string, any>;
 }
 
-export default function DescriptionEditor({ value, onChange }: Props) {
+export default function DescriptionEditor({
+  value,
+  onChange,
+  placeholder = "Nhập nội dung...",
+  editorAttributes,
+}: Props) {
   // Force re-render when selection changes so Toolbar updates
   const [, forceUpdate] = useState(0);
 
@@ -34,7 +41,7 @@ export default function DescriptionEditor({ value, onChange }: Props) {
         types: ["heading", "paragraph"],
       }),
       Placeholder.configure({
-        placeholder: "Nhập mô tả chi tiết...",
+        placeholder: placeholder,
       }),
     ],
     content: value || "", // Changed default empty content to empty string to let placeholder work
@@ -48,6 +55,7 @@ export default function DescriptionEditor({ value, onChange }: Props) {
       attributes: {
         class:
           "prose prose-sm max-w-none focus:outline-none min-h-[200px] px-4 py-3 leading-relaxed",
+        ...editorAttributes,
       },
     },
     immediatelyRender: false,
