@@ -160,6 +160,76 @@ export const submitDraftListing = async (
   });
 };
 
+export const updateSoftListing = async (
+  id: string,
+  listingForm: Partial<createListingProps>,
+  files: File[] | null,
+  coverImageIndex: number
+) => {
+  const formData = new FormData();
+
+  Object.entries(listingForm).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      formData.append(key, value.join(","));
+    } else if (value !== null && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+
+  if (files) {
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+  }
+
+  formData.append("coverImageIndex", String(coverImageIndex));
+
+  return api.patch(`/api/listings/${id}/update-soft`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const updateHardListing = async (
+  id: string,
+  listingForm: Partial<createListingProps>,
+  files: File[] | null,
+  coverImageIndex: number
+) => {
+  const formData = new FormData();
+
+  Object.entries(listingForm).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      formData.append(key, value.join(","));
+    } else if (value !== null && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+
+  if (files) {
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+  }
+
+  formData.append("coverImageIndex", String(coverImageIndex));
+
+  return api.patch(`/api/listings/${id}/update-hard`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const hideListing = async (listingId: string) => {
+  return api.post(`/api/listings/${listingId}/hide`);
+};
+
+export const showListing = async (listingId: string) => {
+  return api.post(`/api/listings/${listingId}/show`);
+};
+
 export const deleteListing = async (listingId: string) => {
   return api.delete(`/api/listings/${listingId}`);
 };

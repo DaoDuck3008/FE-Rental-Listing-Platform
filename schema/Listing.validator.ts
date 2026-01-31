@@ -4,9 +4,11 @@ import { toast } from "react-toastify";
 export const CreateListingValidate = ({
   form,
   images,
+  isUpdate = false,
 }: {
   form: createListingProps;
   images: File[] | null;
+  isUpdate?: boolean;
 }): boolean => {
   if (!form.title?.trim()) {
     toast.warning("Tiêu đề bài viết không được để trống!");
@@ -71,7 +73,7 @@ export const CreateListingValidate = ({
     return false;
   }
 
-  if (!images || images.length === 0) {
+  if (!isUpdate && (!images || images.length === 0)) {
     toast.warning("Vui lòng tải lên ít nhất 1 hình ảnh!");
     return false;
   }

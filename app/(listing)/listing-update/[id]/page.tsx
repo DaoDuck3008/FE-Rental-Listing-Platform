@@ -16,25 +16,29 @@ import {
   User,
   icons,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
 import BackButton from "@/components/common/backButton";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { toast } from "react-toastify";
 import createListingProps from "@/types/listing.type";
-import {
-  CreateDraftListingValidate,
-  CreateListingValidate,
-} from "@/schema/Listing.validator";
+import { CreateListingValidate } from "@/schema/Listing.validator";
 import { useListingTypes } from "@/hooks/useListing";
-import { createDraftListing, createListing } from "@/services/listing.api";
+import {
+  getListingDetail,
+  updateSoftListing,
+  updateHardListing,
+} from "@/services/listing.api";
 import LoadingOverlay from "@/components/common/loadingOverlay";
 import SuccessModal from "@/components/listing/successModal";
-import { useRouter } from "next/navigation";
 import WarningModal from "@/components/ui/warningModal";
 import ListingPreviewModal from "@/components/listing/listingPreviewModal";
 
-export default function CreateNewListingPage() {
+export default function UpdateListingPage() {
+  const { id } = useParams();
+  const router = useRouter();
+
   const [form, setForm] = useState<createListingProps>({
     title: "",
     listing_type_code: "APARTMENT",
@@ -50,12 +54,16 @@ export default function CreateNewListingPage() {
     description: "",
     showPhoneNumber: true,
   });
-  const router = useRouter();
 
+  const [initialForm, setInitialForm] = useState<createListingProps | null>(
+    null
+  );
   const [images, setImages] = useState<File[] | null>(null);
   const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialImageUrls, setInitialImageUrls] = useState<string[]>([]);
   const [openWaring, setOpenWarning] = useState<boolean>(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
 
@@ -71,18 +79,55 @@ export default function CreateNewListingPage() {
     isError: userError,
   } = useUserInfo();
 
-  if (userError) {
-    const res = userError.response.data;
+  useEffect(() => {
+    const fetchListing = async () => {
+      if (!id) return;
+      try {
+        const res = await getListingDetail(id as string);
+        if (res.success) {
+          const data = res.data;
+          const formData: createListingProps = {
+            title: data.title || "",
+            listing_type_code: data.listing_type?.code || "APARTMENT",
+            capacity: data.capacity || 1,
+            price: data.price || 0,
+            area: data.area || 0,
+            beds: data.bedrooms || 1,
+            bathrooms: data.bathrooms || 1,
+            province_code: data.province_code || null,
+            ward_code: data.ward_code || null,
+            address: data.address || "",
+            amenities: data.amenities?.map((a: any) => a.id) || [],
+            description: data.description || "",
+            showPhoneNumber: data.show_phone_number ?? true,
+          };
+          setForm(formData);
+          setInitialForm(formData);
+          setInitialImageUrls(
+            data.images?.map((img: any) => img.image_url) || []
+          );
+        }
+      } catch (error: any) {
+        console.error("Error fetching listing:", error);
+        toast.error("Không thể tải thông tin bài đăng.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    switch (res.error) {
+    fetchListing();
+  }, [id]);
+
+  if (userError) {
+    const res = userError.response?.data;
+    switch (res?.error) {
       case "Unauthorized":
         toast.error(res.message);
-        return;
-
+        router.push("/login");
+        break;
       default:
         toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau!");
-        console.error(userError);
-        return;
+        break;
     }
   }
 
@@ -90,7 +135,6 @@ export default function CreateNewListingPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -117,16 +161,15 @@ export default function CreateNewListingPage() {
   const handleIncreaseNumber = (name: "beds" | "bathrooms") => {
     setForm((prev) => ({
       ...prev,
-      [name]: form[name] + 1,
+      [name]: Number(form[name]) + 1,
     }));
   };
 
   const handleDecreaseNumber = (name: "beds" | "bathrooms") => {
-    if (form[name] <= 0) return;
-
+    if (Number(form[name]) <= 0) return;
     setForm((prev) => ({
       ...prev,
-      [name]: form[name] - 1,
+      [name]: Number(form[name]) - 1,
     }));
   };
 
@@ -151,58 +194,82 @@ export default function CreateNewListingPage() {
 
   const handleSubmit = async () => {
     try {
-      if (!CreateListingValidate({ form, images })) return;
+      if (!CreateListingValidate({ form, images, isUpdate: true })) return;
 
       setIsSubmitting(true);
-      const res = await createListing(form, images, coverImageIndex);
-      setIsSubmitting(false);
 
-      if (res.status === 201) {
-        setIsSuccess(true);
-        return;
-      }
-      return;
-    } catch (error: any) {
-      setIsSubmitting(false);
-      const res = error.response?.data;
-      if (!res) {
-        toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau!");
-        return;
-      }
+      if (!initialForm) return;
 
-      switch (res.error) {
-        case "VALIDATION_ERROR":
-          res.errors.forEach((err: { field: string; message: string }) => {
-            toast.error(err.message);
-          });
+      const hardFields: (keyof createListingProps)[] = [
+        "listing_type_code",
+        "capacity",
+        "price",
+        "area",
+        "beds",
+        "bathrooms",
+        "province_code",
+        "ward_code",
+        "address",
+        "showPhoneNumber",
+      ];
+
+      let isHardUpdate = false;
+      for (const field of hardFields) {
+        if (form[field] !== initialForm[field]) {
+          isHardUpdate = true;
           break;
-        case "UPLOAD_ERROR":
-          toast.error(res.message);
-          break;
-        default:
-          toast.error(res.message || "Đã có lỗi xảy ra!");
-          console.error(error);
-          break;
+        }
       }
 
-      return;
-    }
-  };
+      let res;
+      if (isHardUpdate) {
+        res = await updateHardListing(
+          id as string,
+          form,
+          images,
+          coverImageIndex
+        );
+      } else {
+        // Soft update check: title, description, amenities, images
+        let isSoftUpdate = false;
 
-  const handleDraft = async () => {
-    try {
-      if (!CreateDraftListingValidate) return;
+        if (images !== null) isSoftUpdate = true;
+        if (form.title !== initialForm.title) isSoftUpdate = true;
+        if (form.description !== initialForm.description) isSoftUpdate = true;
 
-      setIsSubmitting(true);
-      const res = await createDraftListing(form, images, coverImageIndex);
+        // Compare amenities
+        if (
+          form.amenities.length !== initialForm.amenities.length ||
+          !form.amenities.every((a) => initialForm.amenities.includes(a))
+        ) {
+          isSoftUpdate = true;
+        }
+
+        if (isSoftUpdate) {
+          res = await updateSoftListing(
+            id as string,
+            form,
+            images,
+            coverImageIndex
+          );
+        } else {
+          toast.info("Không có thay đổi nào để cập nhật.");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       setIsSubmitting(false);
-
-      if (res.status === 201) {
-        toast.success(res.data.message);
+      if (res && (res.status === 200 || res.status === 201)) {
+        const data = res.data;
+        toast.success(data.message);
+        if (isHardUpdate) {
+          setIsSuccess(true);
+          return;
+        }
         router.replace("/profile/listing-management");
         return;
       }
-      return;
     } catch (error: any) {
       setIsSubmitting(false);
       const res = error.response?.data;
@@ -210,25 +277,11 @@ export default function CreateNewListingPage() {
         toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau!");
         return;
       }
-
-      switch (res.error) {
-        case "VALIDATION_ERROR":
-          res.errors.forEach((err: { field: string; message: string }) => {
-            toast.error(err.message);
-          });
-          break;
-        case "UPLOAD_ERROR":
-          toast.error(res.message);
-          break;
-        default:
-          toast.error(res.message || "Đã có lỗi xảy ra!");
-          console.error(error);
-          break;
-      }
-
-      return;
+      toast.error(res.message || "Đã có lỗi xảy ra!");
     }
   };
+
+  if (isLoading) return <LoadingOverlay message="Đang tải dữ liệu..." />;
 
   return (
     <>
@@ -242,11 +295,11 @@ export default function CreateNewListingPage() {
           {/* TIÊU ĐỀ */}
           <div className="mb-8">
             <h1 className="text-2xl md:text-4xl font-black text-text-main tracking-tight mb-2">
-              Đăng tin cho thuê mới
+              Cập nhật bài đăng
             </h1>
             <p className="text-text-secondary text-base">
-              Điền thông tin chi tiết để tiếp cận người thuê nhanh chóng và hiệu
-              quả.
+              Chỉnh sửa thông tin bài đăng của bạn. Lưu ý rằng một số thay đổi
+              về giá, diện tích hoặc vị trí có thể cần được phê duyệt lại.
             </p>
           </div>
 
@@ -288,6 +341,7 @@ export default function CreateNewListingPage() {
                   <div className="relative">
                     <select
                       name="listing_type_code"
+                      value={form.listing_type_code}
                       onChange={handleChange}
                       className="w-full h-12 px-4 appearance-none rounded-lg border border-input-border bg-white text-text-main focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     >
@@ -439,6 +493,7 @@ export default function CreateNewListingPage() {
                     <select
                       onChange={handleProvinceChange}
                       name="province_code"
+                      value={form.province_code || ""}
                       className="w-full h-12 px-4 appearance-none rounded-lg border border-input-border bg-white text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     >
                       <option value="">Chọn Tỉnh/ Thành phố</option>
@@ -509,15 +564,14 @@ export default function CreateNewListingPage() {
                 </div>
                 <div className="md:col-span-3 rounded-xl overflow-hidden h-64 relative bg-gray-200 border border-input-border group cursor-pointer">
                   <img
-                    alt="Map view of Ho Chi Minh City streets"
+                    alt="Map view"
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                    data-location="Ho Chi Minh City"
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeAVSSsPmznwMIv5cR4lgMGVP4Z_UB8rLGSXonecm9SD-7lHW21mu1vLPCUiWYSCURucpYJTyaeofJguU0XlyA9e3WJVZ3ZMtNhnEYRble5c0NKt2JXhezQtUNXZAbzHRSMD6TfLHAk1Aj7WRw29eA4jTzZWiWw3Xcv9_kSGB91cNdectrEl_PjXkJ4MBA89qA2lt8jvHfhzH7eE3UlqgXyvKjROWg10wqlKc7M92rbMnVdyBvg2riDZd-g4Ku7DhsJcdomZlYfEMR"
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/10">
                     <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-primary font-bold">
                       <span className="material-symbols-outlined">
-                        <CloudUpload />
+                        <CloudUpload size={20} />
                       </span>
                       Chọn vị trí trên bản đồ
                     </div>
@@ -539,7 +593,12 @@ export default function CreateNewListingPage() {
                 </h2>
               </div>
               <div className="p-6">
+                <p className="text-sm text-text-secondary mb-4 italic">
+                  Lưu ý: Nếu bạn tải lên ảnh mới, hệ thống sẽ thay thế toàn bộ
+                  ảnh hiện tại bằng danh sách ảnh mới này.
+                </p>
                 <UploadListingImage
+                  initialPreviews={initialImageUrls}
                   setFileCallback={(files) => setImages(files)}
                   setCoverImageCallback={(index) => setCoverImageIndex(index)}
                 />
@@ -675,19 +734,12 @@ export default function CreateNewListingPage() {
             <div className="sticky bottom-0 z-40 bg-white border-t border-border-color -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 mt-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
               <div className="mx-auto flex items-center justify-end gap-3">
                 <button
-                  className="cursor-pointer h-12 px-6 rounded-lg border border-input-border bg-white text-text-main font-bold text-sm  hover:bg-emerald-400 transition-colors"
-                  type="button"
-                  onClick={handleDraft}
-                >
-                  Lưu bản nháp
-                </button>
-                <button
                   type="button"
                   onClick={() => setIsPreviewOpen(true)}
                   className="h-12 px-6 flex items-center gap-2 rounded-lg border border-input-border bg-white text-text-main font-bold text-sm hover:bg-gray-50 transition-colors cursor-pointer select-none"
                 >
                   <span className="material-symbols-outlined text-[20px]">
-                    <Eye />
+                    <Eye size={20} />
                   </span>
                   Xem trước
                 </button>
@@ -696,7 +748,7 @@ export default function CreateNewListingPage() {
                   type="button"
                   onClick={() => setOpenWarning(true)}
                 >
-                  Đăng tin ngay
+                  Cập nhật bài đăng
                 </button>
               </div>
             </div>
@@ -705,14 +757,18 @@ export default function CreateNewListingPage() {
       </main>
 
       {/* MODALS & OVERLAYS */}
-      {isSubmitting && <LoadingOverlay message="Đang đăng bài viết..." />}
-      <SuccessModal isOpen={isSuccess} redirectPath="/" delay={5000} />
+      {isSubmitting && <LoadingOverlay message="Đang xử lý..." />}
+      <SuccessModal
+        isOpen={isSuccess}
+        redirectPath="/profile/listing-management"
+        delay={3000}
+      />
 
       {openWaring && (
         <WarningModal
           title="Kiểm tra kỹ thông tin của bạn!"
           message=" Hãy kiểm tra kĩ lại thông tin của bạn về độ chính xác và chính tả.
-                   Sau khi submit bạn phải chờ Admin duyệt mới được thay đổi tiếp."
+            Sau khi submit bạn phải chờ Admin duyệt mới được thay đổi tiếp."
           OnClose={() => setOpenWarning(false)}
           OnSubmit={() => {
             setOpenWarning(false);
@@ -726,7 +782,7 @@ export default function CreateNewListingPage() {
         onClose={() => setIsPreviewOpen(false)}
         data={form}
         allAmenities={amenities || []}
-        images={images || []}
+        images={images && images.length > 0 ? images : initialImageUrls}
       />
     </>
   );

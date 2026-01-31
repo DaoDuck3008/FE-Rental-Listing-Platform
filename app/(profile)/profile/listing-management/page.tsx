@@ -55,26 +55,27 @@ export default function ListingManagementPage() {
     return () => clearTimeout(timer);
   }, [inputLimit]);
 
-  useEffect(() => {
-    const callMyListings = async () => {
-      try {
-        const result = await getMyListings({ limit, page });
-        const { data, pagination } = result;
-        setListings(data);
-        setPagination(pagination);
-      } catch (error: any) {
-        const res = error.response?.data;
-        if (res?.error === "UNAUTHORIZED" || res?.error === "FORBIDDEN") {
-          toast.error(res.message);
-        } else if (res?.error === "DATABASE_ERROR") {
-          toast.error("Có lỗi ở phía cơ sở dữ liệu");
-        } else {
-          toast.error("Có lỗi xảy ra.");
-          console.error(error);
-        }
+  const fetchListings = async () => {
+    try {
+      const result = await getMyListings({ limit, page });
+      const { data, pagination } = result;
+      setListings(data);
+      setPagination(pagination);
+    } catch (error: any) {
+      const res = error.response?.data;
+      if (res?.error === "UNAUTHORIZED" || res?.error === "FORBIDDEN") {
+        toast.error(res.message);
+      } else if (res?.error === "DATABASE_ERROR") {
+        toast.error("Có lỗi ở phía cơ sở dữ liệu");
+      } else {
+        toast.error("Có lỗi xảy ra.");
+        console.error(error);
       }
-    };
-    callMyListings();
+    }
+  };
+
+  useEffect(() => {
+    fetchListings();
   }, [page, limit]);
 
   return (
@@ -191,6 +192,7 @@ export default function ListingManagementPage() {
                         status={listing.status}
                         createdAt={listing.created_at}
                         img_url={listing.images[0]?.image_url}
+                        onRefresh={fetchListings}
                       />
                     ))
                   ) : (

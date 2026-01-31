@@ -240,6 +240,11 @@ export default function ListingDetailPage() {
                   <p className="text-xs text-slate-500">
                     Chủ nhà xác thực • 5.0 ★
                   </p>
+                  {listing.show_phone_number && (
+                    <p className="text-xs text-primary font-bold mt-1">
+                      SĐT: {listing.owner?.phone_number || "Chưa cập nhật"}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col gap-3">
@@ -252,11 +257,6 @@ export default function ListingDetailPage() {
                   Yêu cầu xem nhà
                 </button>
               </div>
-              {listing.showPhoneNumber && (
-                <p className="text-center font-bold text-slate-700">
-                  SĐT: {listing.owner?.phone_number || "Chưa cập nhật"}
-                </p>
-              )}
               <p className="text-center text-xs text-slate-400">
                 Thường phản hồi trong 1 giờ
               </p>
