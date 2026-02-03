@@ -230,6 +230,10 @@ export const showListing = async (listingId: string) => {
   return api.post(`/api/listings/${listingId}/show`);
 };
 
+export const renewListing = async (listingId: string) => {
+  return api.post(`/api/listings/${listingId}/renew`);
+};
+
 export const deleteListing = async (listingId: string) => {
   return api.delete(`/api/listings/${listingId}`);
 };

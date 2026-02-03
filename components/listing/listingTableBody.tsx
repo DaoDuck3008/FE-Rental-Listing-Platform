@@ -1,4 +1,12 @@
-import { CalendarFold, Eye, EyeOff, MapPin, Pen, Trash2 } from "lucide-react";
+import {
+  CalendarFold,
+  Eye,
+  EyeOff,
+  MapPin,
+  Pen,
+  Trash2,
+  RefreshCw,
+} from "lucide-react";
 import {
   formatVietnameseDate,
   formatVietnamesePrice,
@@ -12,6 +20,7 @@ import { toast } from "react-toastify";
 import {
   deleteListing,
   hideListing,
+  renewListing,
   showListing,
 } from "@/services/listing.api";
 import ConfirmDeleteModal from "./confirmDeleteModal";
@@ -99,6 +108,37 @@ export default function ListingTableBody({
       }
 
       toast.error(res.message);
+      return;
+    }
+  };
+
+  const handleRenewListing = async (listingId: string) => {
+    try {
+      setIsLoading(true);
+      const result = await renewListing(listingId);
+      setIsLoading(false);
+
+      if (
+        result &&
+        (result.status === 200 ||
+          result.status === 201 ||
+          result.status === 204)
+      ) {
+        toast.success(result.data.message);
+        if (onRefresh) onRefresh();
+        else router.refresh();
+        return;
+      }
+    } catch (error: any) {
+      const res = error.response?.data;
+      if (!res) {
+        toast.error("Đã có lỗi xảy ra. Vui lòng thử lại sau");
+        setIsLoading(false);
+        return;
+      }
+
+      toast.error(res.message);
+      setIsLoading(false);
       return;
     }
   };
@@ -216,31 +256,43 @@ export default function ListingTableBody({
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center justify-end gap-2">
-          {status !== "DRAFT" &&
-            status !== "PENDING" &&
-            status !== "EDIT-DRAFT" &&
-            status !== "HIDDEN" && (
-              <button
-                className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
-                title="Ẩn tin"
-                onClick={() => handleHideListing(id)}
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  <EyeOff size={15} />
-                </span>
-              </button>
-            )}
-
-          {status === "HIDDEN" && (
+          {status === "EXPIRED" ? (
             <button
               className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
-              title="Hiển thị tin"
-              onClick={() => handleShowLisiting(id)}
+              title="Làm mới tin"
+              onClick={() => handleRenewListing(id)}
             >
-              <span className="material-symbols-outlined text-[20px]">
-                <Eye size={15} />
-              </span>
+              <RefreshCw size={15} />
             </button>
+          ) : (
+            <>
+              {status !== "DRAFT" &&
+                status !== "PENDING" &&
+                status !== "EDIT-DRAFT" &&
+                status !== "HIDDEN" && (
+                  <button
+                    className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
+                    title="Ẩn tin"
+                    onClick={() => handleHideListing(id)}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      <EyeOff size={15} />
+                    </span>
+                  </button>
+                )}
+
+              {status === "HIDDEN" && (
+                <button
+                  className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
+                  title="Hiển thị tin"
+                  onClick={() => handleShowLisiting(id)}
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    <Eye size={15} />
+                  </span>
+                </button>
+              )}
+            </>
           )}
 
           {status !== "PENDING" ? (
