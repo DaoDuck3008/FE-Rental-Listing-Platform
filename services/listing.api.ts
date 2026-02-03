@@ -233,3 +233,41 @@ export const showListing = async (listingId: string) => {
 export const deleteListing = async (listingId: string) => {
   return api.delete(`/api/listings/${listingId}`);
 };
+
+export const getListingsForModeration = async ({
+  limit,
+  page,
+  status,
+  keyword,
+}: {
+  limit?: number;
+  page?: number;
+  status?: string;
+  keyword?: string;
+}) => {
+  let url = `/api/admin/listings/moderation?limit=${limit}&page=${page}`;
+  if (status) url += `&status=${status}`;
+  if (keyword) url += `&keyword=${keyword}`;
+  return api.get(url);
+};
+
+export const approveListing = async (id: string) => {
+  return api.post(`/api/admin/listings/${id}/approve`);
+};
+
+export const rejectListing = async (id: string, reason?: string) => {
+  return api.post(`/api/admin/listings/${id}/reject`, { reason });
+};
+
+export const getListingForModerationDetail = async (id: string) => {
+  const res = await api.get(`/api/admin/listings/${id}`);
+  return res.data;
+};
+
+export const approveEditDraft = async (id: string) => {
+  return api.post(`/api/admin/edit-drafts/${id}/approve`);
+};
+
+export const rejectEditDraft = async (id: string, reason?: string) => {
+  return api.post(`/api/admin/edit-drafts/${id}/reject`, { reason });
+};

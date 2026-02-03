@@ -15,7 +15,7 @@ export type ListingStatus =
  */
 export const STATUS_MAP: Record<string, string> = {
   DRAFT: "Bản nháp",
-  EDIT_DRAFT: "Đang chờ duyệt thay đổi",
+  EDIT_DRAFT: "Cần duyệt lại",
   PENDING: "Đang chờ kiểm duyệt",
   PUBLISHED: "Đã xuất bản",
   HIDDEN: "Đã ẩn",
@@ -44,10 +44,10 @@ export const STATUS_STYLES: Record<string, StatusStyle> = {
     dot: "bg-slate-500",
   },
   EDIT_DRAFT: {
-    bg: "bg-amber-100",
-    text: "text-amber-700",
-    border: "border-amber-200",
-    dot: "bg-amber-500",
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-200",
+    dot: "bg-blue-500",
   },
   PENDING: {
     bg: "bg-amber-100",
