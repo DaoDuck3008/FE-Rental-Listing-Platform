@@ -17,8 +17,10 @@ import {
   SquarePen,
   Zap,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const date = new Date();
   const formattedDate = date.toLocaleDateString("vi-VN", {
@@ -27,6 +29,18 @@ export default function ProfilePage() {
     month: "long",
     day: "numeric",
   });
+
+  const openCreateListing = () => {
+    router.replace("/listing-create");
+  };
+
+  const openListingManagement = () => {
+    router.replace("/profile/listing-management");
+  };
+
+  const openEditProfile = () => {
+    router.replace("/profile/personal-information/edit");
+  };
 
   return (
     <main
@@ -100,19 +114,28 @@ export default function ProfilePage() {
             Hành động nhanh
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-[#1069c4] text-white px-4 py-4 lg:px-6 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-95 touch-manipulation">
+            <button
+              onClick={openCreateListing}
+              className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-[#1069c4] text-white px-4 py-4 lg:px-6 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-95 touch-manipulation"
+            >
               <span className="material-symbols-outlined">
                 <CirclePlus />
               </span>
               <span>Đăng tin mới</span>
             </button>
-            <button className="flex items-center justify-center gap-2 bg-white border border-input-border text-text-main px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation">
+            <button
+              onClick={openListingManagement}
+              className="flex items-center justify-center gap-2 bg-white border border-input-border text-text-main px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation"
+            >
               <span className="material-symbols-outlined">
                 <FileSliders />
               </span>
               <span>Quản lý bài</span>
             </button>
-            <button className="flex items-center justify-center gap-2 bg-white border border-input-border text-text-main px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation">
+            <button
+              onClick={openEditProfile}
+              className="flex items-center justify-center gap-2 bg-white border border-input-border text-text-main px-4 py-4 lg:px-6 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95 touch-manipulation"
+            >
               <span className="material-symbols-outlined">
                 <SquarePen />
               </span>

@@ -5,11 +5,15 @@ export default function WarningModal({
   message,
   OnClose,
   OnSubmit,
+  closeLabel = "Kiểm tra lại",
+  submitLabel = "Tôi đã hiểu và Đăng bài",
 }: {
   title: string;
   message: string;
   OnClose: () => void;
   OnSubmit: () => void;
+  closeLabel?: string;
+  submitLabel?: string;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
@@ -32,13 +36,13 @@ export default function WarningModal({
             onClick={OnClose}
             className="flex flex-1 cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-white  border border-slate-200  text-slate-700  text-base font-bold leading-normal transition-colors hover:bg-slate-50 "
           >
-            <span className="truncate">Kiểm tra lại</span>
+            <span className="truncate">{closeLabel}</span>
           </button>
           <button
             onClick={OnSubmit}
             className="flex flex-1 cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal transition-opacity hover:opacity-90"
           >
-            <span className="truncate">Tôi đã hiểu và Đăng bài</span>
+            <span className="truncate">{submitLabel}</span>
           </button>
         </div>
       </div>

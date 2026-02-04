@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/auth.store";
 
 export const useUserInfo = () => {
   const hydrated = useAuthStore((state) => state.hydrated);
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     hydrated ? "personal_information" : null,
     getPersonalInformationSWR,
     {
@@ -24,5 +24,6 @@ export const useUserInfo = () => {
     userInfo: data?.user,
     isLoading,
     isError: error,
+    mutate,
   };
 };

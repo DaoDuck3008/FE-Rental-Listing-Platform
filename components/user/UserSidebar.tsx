@@ -115,7 +115,7 @@ export default function UserSidebar({ onClose }: { onClose: () => void }) {
             </Link>
             <Link
               className={`flex items-center gap-3 px-4 py-3 rounded-xl ${
-                currentRoute === "/profile/personal-information"
+                currentRoute.startsWith("/profile/personal-information")
                   ? "bg-blue-500 text-white shadow-md"
                   : "text-text-secondary hover:bg-slate-100"
               }   shadow-blue-500/20 group transition-all`}
