@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  RotateCcw,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -33,7 +34,7 @@ interface Pagination {
 export default function ModerationPage() {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>(""); // empty means all PENDING + EDIT_DRAFT
+  const [statusFilter, setStatusFilter] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
   const [inputLimit, setInputLimit] = useState<string>("10");
   const [page, setPage] = useState<number>(1);
@@ -83,6 +84,13 @@ export default function ModerationPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleReset = () => {
+    setSearchKeyword("");
+    setDebouncedKeyword("");
+    setStatusFilter("");
+    setPage(1);
   };
 
   useEffect(() => {
@@ -149,6 +157,13 @@ export default function ModerationPage() {
               Cập nhật
             </button>
           </div>
+          <button
+            onClick={handleReset}
+            className="h-11 px-4 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all flex items-center justify-center border border-slate-200 shadow-sm"
+            title="Làm mới bộ lọc"
+          >
+            <RotateCcw size={18} />
+          </button>
         </div>
       </div>
 

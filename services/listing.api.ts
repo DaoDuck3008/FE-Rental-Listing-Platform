@@ -9,13 +9,26 @@ export const getAllListingTypesSWR = async () => {
 export const getMyListings = async ({
   limit,
   page,
+  listing_type_code,
+
+  keyword,
+  status,
+  sort_by,
 }: {
   limit?: number;
   page?: number;
+  listing_type_code?: string;
+  keyword?: string;
+  sort_by?: string;
+  status?: string;
 }) => {
-  const res = await api.get(
-    `/api/listings/my-listings?limit=${limit}&page=${page}`
-  );
+  let url = `/api/listings/my-listings?limit=${limit}&page=${page}`;
+  if (listing_type_code) url += `&listing_type_code=${listing_type_code}`;
+  if (status) url += `&status=${status}`;
+  if (keyword) url += `&keyword=${keyword}`;
+  if (sort_by) url += `&sort_by=${sort_by}`;
+
+  const res = await api.get(url);
   return res.data;
 };
 

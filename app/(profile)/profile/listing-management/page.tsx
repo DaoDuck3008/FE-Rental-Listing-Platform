@@ -11,10 +11,12 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useListingTypes } from "@/hooks/useListingTypes";
 
 interface Listing {
   id: string;
@@ -35,12 +37,28 @@ interface Pagination {
 }
 
 export default function ListingManagementPage() {
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [keyword, setKeyword] = useState<string>("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [listingTypeFilter, setListingTypeFilter] = useState<string>("");
+  const [sortFilter, setSortFilter] = useState<string>("DATE_DESC");
+
+  const { listingTypes } = useListingTypes();
+
   const [limit, setLimit] = useState<number>(10);
   const [inputLimit, setInputLimit] = useState<string>("10");
   const [page, setPage] = useState<number>(1);
   const [listings, setListings] = useState<Listing[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
+
+  // Debounce search keyword
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [keyword]);
 
   // Debounce limit input
   useEffect(() => {
@@ -57,26 +75,64 @@ export default function ListingManagementPage() {
 
   const fetchListings = async () => {
     try {
-      const result = await getMyListings({ limit, page });
+      const result = await getMyListings({
+        limit,
+        page,
+        keyword: debouncedKeyword,
+        listing_type_code: listingTypeFilter,
+        status: statusFilter,
+        sort_by: sortFilter,
+      });
       const { data, pagination } = result;
       setListings(data);
       setPagination(pagination);
     } catch (error: any) {
       const res = error.response?.data;
-      if (res?.error === "UNAUTHORIZED" || res?.error === "FORBIDDEN") {
-        toast.error(res.message);
-      } else if (res?.error === "DATABASE_ERROR") {
-        toast.error("Có lỗi ở phía cơ sở dữ liệu");
-      } else {
-        toast.error("Có lỗi xảy ra.");
+      if (!res) {
         console.error(error);
+        toast.error("Lỗi không xác định. Vui lòng thử lại sau");
+        return;
       }
+      toast.error(res.message || "Đã có lỗi xảy ra");
+      return;
+    } finally {
     }
   };
 
   useEffect(() => {
     fetchListings();
-  }, [page, limit]);
+  }, [
+    page,
+    limit,
+    statusFilter,
+    debouncedKeyword,
+    sortFilter,
+    listingTypeFilter,
+  ]);
+
+  const handleStatusChange = (status: string) => {
+    setStatusFilter(status);
+    setPage(1);
+  };
+
+  const handleListingTypeChange = (typeCode: string) => {
+    setListingTypeFilter(typeCode);
+    setPage(1);
+  };
+
+  const handleSortChange = (sort: string) => {
+    setSortFilter(sort);
+    setPage(1);
+  };
+
+  const handleReset = () => {
+    setKeyword("");
+    setDebouncedKeyword("");
+    setStatusFilter("");
+    setListingTypeFilter("");
+    setSortFilter("DATE_DESC");
+    setPage(1);
+  };
 
   return (
     <>
@@ -106,19 +162,25 @@ export default function ListingManagementPage() {
                 <input
                   className="w-full h-11 pl-10 pr-4 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm transition-all"
                   placeholder="Tìm kiếm theo tiêu đề, địa chỉ hoặc mã tin..."
-                  value={searchKeyword}
-                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
                 />
               </div>
               {/* <!-- Filters Group --> */}
               <div className="flex gap-3 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
                 <div className="min-w-40">
                   <div className="relative">
-                    <select className="w-full h-11 pl-3 pr-10 hover:bg-blue-500 hover:text-white appearance-none rounded-lg bg-slate-50 border border-slate-200 text-slate-700 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm font-medium cursor-pointer">
-                      <option>Tất cả trạng thái</option>
-                      <option>Đang hiển thị</option>
-                      <option>Đã hết hạn</option>
-                      <option>Đã ẩn</option>
+                    <select
+                      className="w-full h-11 pl-3 pr-10  appearance-none rounded-lg bg-slate-50 border border-slate-200 text-slate-700 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm font-medium cursor-pointer"
+                      value={listingTypeFilter}
+                      onChange={(e) => handleListingTypeChange(e.target.value)}
+                    >
+                      <option value="">Tất cả loại phòng</option>
+                      {listingTypes?.map((type: any) => (
+                        <option key={type.code} value={type.code}>
+                          {type.name}
+                        </option>
+                      ))}
                     </select>
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined pointer-events-none">
                       <ChevronsDown />
@@ -127,36 +189,96 @@ export default function ListingManagementPage() {
                 </div>
                 <div className="min-w-40">
                   <div className="relative">
-                    <select className="w-full h-11 pl-3 pr-10 hover:bg-blue-500 hover:text-white appearance-none rounded-lg bg-slate-50 border border-slate-200 text-slate-700 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm font-medium cursor-pointer">
-                      <option>Sắp xếp: Mới nhất</option>
-                      <option>Giá: Cao đến thấp</option>
-                      <option>Lượt xem nhiều nhất</option>
+                    <select
+                      className="w-full h-11 pl-3 pr-10   appearance-none rounded-lg bg-slate-50 border border-slate-200 text-slate-700 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 text-sm font-medium cursor-pointer"
+                      value={sortFilter}
+                      onChange={(e) => handleSortChange(e.target.value)}
+                    >
+                      <option value="DATE_DESC">Sắp xếp: Mới nhất</option>
+                      <option value="DATE_ASC">Sắp xếp: Cũ nhất</option>
+                      <option value="PRICE_DESC">Giá: Cao đến thấp</option>
+                      <option value="PRICE_ASC">Giá: Thấp đến cao</option>
                     </select>
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined pointer-events-none">
                       <ArrowDownWideNarrow />
                     </span>
                   </div>
                 </div>
+                {/* <!-- Reset Button --> */}
+                <button
+                  onClick={handleReset}
+                  className="h-11 px-4 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-all flex items-center gap-2 text-sm font-medium border border-slate-200"
+                  title="Làm mới bộ lọc"
+                >
+                  <RotateCcw size={18} />
+                </button>
               </div>
             </div>
             {/* <!-- Quick Filter Chips --> */}
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
-              <button className="px-3 py-1.5 rounded-full bg-slate-800 text-white text-xs font-semibold transition-colors">
+              <button
+                onClick={() => handleStatusChange("")}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  statusFilter === ""
+                    ? "bg-slate-800 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
                 Tất cả ({pagination?.totalItems || 0})
               </button>
-              <button className="px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold transition-colors">
-                Đang hiển thị (5)
+              <button
+                onClick={() => handleStatusChange("PUBLISHED")}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  statusFilter === "PUBLISHED"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                Đang hiển thị
               </button>
-              <button className="px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold transition-colors">
-                Đã hết hạn (3)
+              <button
+                onClick={() => handleStatusChange("PENDING")}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  statusFilter === "PENDING"
+                    ? "bg-yellow-500 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                Đang chờ duyệt
               </button>
-              <button className="px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold transition-colors">
-                Bị từ chối (0)
+              <button
+                onClick={() => handleStatusChange("EXPIRED")}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  statusFilter === "EXPIRED"
+                    ? "bg-orange-500 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                Đã hết hạn
+              </button>
+              <button
+                onClick={() => handleStatusChange("REJECTED")}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  statusFilter === "REJECTED"
+                    ? "bg-red-500 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                Bị từ chối
+              </button>
+              <button
+                onClick={() => handleStatusChange("HIDDEN")}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  statusFilter === "HIDDEN"
+                    ? "bg-slate-500 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                Đã ẩn
               </button>
             </div>
           </div>
 
-          {/* Table Container with Horizontal Scroll */}
           <div className="mt-3 rounded-xl bg-white border border-slate-200 shadow-md overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
