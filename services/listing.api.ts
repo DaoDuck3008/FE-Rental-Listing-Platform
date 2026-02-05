@@ -32,6 +32,35 @@ export const getMyListings = async ({
   return res.data;
 };
 
+export const getPublicListings = async (params: {
+  page?: number;
+  limit?: number;
+  keyword?: string;
+  province_code?: number;
+  ward_code?: number;
+  listing_type_code?: string;
+  min_price?: number;
+  max_price?: number;
+  min_area?: number;
+  max_area?: number;
+  beds?: number;
+  amenities?: string[];
+  sort_by?: string;
+}) => {
+  const { amenities, ...rest } = params;
+  let url = `/api/listings?`;
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      url += `${key}=${value}&`;
+    }
+  });
+  if (amenities && amenities.length > 0) {
+    url += `amenities=${amenities.join(",")}&`;
+  }
+  const res = await api.get(url.slice(0, -1));
+  return res.data;
+};
+
 export const createListing = async (
   listingForm: createListingProps,
   files: File[] | null,

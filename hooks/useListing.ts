@@ -1,4 +1,7 @@
-import { getAllListingTypesSWR } from "@/services/listing.api";
+import {
+  getAllListingTypesSWR,
+  getPublicListings,
+} from "@/services/listing.api";
 import useSWR from "swr";
 
 export const useListingTypes = () => {

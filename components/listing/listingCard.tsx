@@ -1,6 +1,9 @@
 import { Bath, Bed, BookHeart, LandPlot } from "lucide-react";
+import { formatVietnamesePrice } from "@/utils/formatters";
+import Link from "next/link";
 
 interface ListingCardProps {
+  id: string;
   title: string;
   imgUrl: string;
   cost: string | number;
@@ -12,6 +15,7 @@ interface ListingCardProps {
 }
 
 export default function ListingCard({
+  id,
   title,
   imgUrl,
   cost,
@@ -22,72 +26,58 @@ export default function ListingCard({
   status,
 }: ListingCardProps) {
   return (
-    <a
-      href="#"
-      className="group bg-white cursor-pointer rounded-xl overflow-hidden border border-slate-200  hover:shadow-lg transition-all duration-300 flex flex-col"
+    <Link
+      href={`/listing-detail/${id}`}
+      className="group bg-white cursor-pointer rounded-xl overflow-hidden border border-slate-200 hover:shadow-lg transition-all duration-300 flex flex-col"
     >
       <div className="relative aspect-4/3 overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105">
           <img
-            src={imgUrl}
+            src={imgUrl ?? "./NoImage.jpg"}
             className="w-full h-full object-cover"
             alt={title}
           />
         </div>
-        <div className="absolute top-3 right-3">
-          <button className="bg-white/90  p-2 rounded-full text-slate-400 hover:text-red-500 transition-colors backdrop-blur-sm">
-            <span className="material-symbols-outlined text-xl block">
-              <BookHeart />
+        <div className="absolute top-2.5 right-2.5">
+          <button className="bg-white/90 p-1.5 rounded-full text-slate-400 hover:text-red-500 transition-colors backdrop-blur-sm">
+            <span className="material-symbols-outlined text-lg block">
+              <BookHeart className="w-4 h-4" />
             </span>
           </button>
         </div>
-        <div className="absolute top-3 left-3">
-          <span className="bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full backdrop-blur-sm">
+        {/* <div className="absolute top-2.5 left-2.5">
+          <span className="bg-primary/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
             Mới
           </span>
-        </div>
+        </div> */}
       </div>
-      <div className="p-5 flex flex-col gap-2">
+      <div className="p-4 flex flex-col gap-1.5">
         <div className="flex items-baseline justify-between">
-          <h3 className="text-2xl font-bold text-slate-900 ">
-            {/* 2.400.000 */}
-            {cost}₫
-            <span className="text-sm text-slate-500  font-medium">/tháng</span>
+          <h3 className="text-xl font-bold text-primary">
+            {formatVietnamesePrice(Number(cost))}
           </h3>
-          <span className="text-xs font-bold text-green-600 bg-green-100   px-2 py-1 rounded">
+          <span className="text-[10px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded border border-green-100">
             Đã xác thực
           </span>
         </div>
-        <p className="text-slate-900  font-semibold truncate">
-          {/* Căn hộ Loft cao cấp trung tâm */}
-          {title}
-        </p>
-        <p className="text-slate-500  text-sm truncate">
-          {/* 123 Đường Hai Bà Trưng, Quận 1 */}
-          {address}
-        </p>
-        <div className="w-full h-px bg-slate-100  my-2"></div>
-        <div className="flex items-center gap-4 text-slate-600  text-sm">
+        <p className="text-slate-900 font-semibold text-sm truncate">{title}</p>
+        <p className="text-slate-500 text-[13px] truncate">{address}</p>
+        <div className="w-full h-px bg-slate-100 my-1"></div>
+        <div className="flex items-center gap-3 text-slate-600 text-[13px]">
           <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-lg">
-              <Bed />
-            </span>
+            <Bed className="w-4 h-4 text-slate-400" />
             <span className="font-bold">{beds}</span> PN
           </div>
           <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-lg">
-              <Bath />
-            </span>
+            <Bath className="w-4 h-4 text-slate-400" />
             <span className="font-bold">{baths}</span> PT
           </div>
           <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-lg">
-              <LandPlot />
-            </span>
-            <span className="font-bold">{area}</span> m²
+            <LandPlot className="w-4 h-4 text-slate-400" />
+            <span className="font-bold">{area.toLocaleString("vi-VN")}</span> m²
           </div>
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
