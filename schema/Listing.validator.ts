@@ -62,6 +62,11 @@ export const CreateListingValidate = ({
     return false;
   }
 
+  if (!form.latitude || !form.longitude) {
+    toast.warning("Vui lòng xác định vị trí trên bản đồ!");
+    return false;
+  }
+
   // Validate amenities and description
   if (!form.amenities || form.amenities.length === 0) {
     toast.warning("Vui lòng chọn ít nhất 1 tiện ích!");

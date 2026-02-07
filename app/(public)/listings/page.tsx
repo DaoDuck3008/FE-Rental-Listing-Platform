@@ -11,6 +11,7 @@ import {
   Filter,
   RotateCcw,
   Loader2,
+  X,
 } from "lucide-react";
 import { useProvinces, useWardsByProvince } from "@/hooks/useProvinces";
 import { useListingTypes } from "@/hooks/useListing";
@@ -37,6 +38,8 @@ export default function SearchPage() {
     page: 1,
   });
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,6 +47,17 @@ export default function SearchPage() {
   const { wards } = useWardsByProvince(filters.province_code);
   const { listingTypes } = useListingTypes();
   const { amenities } = useAmenities();
+
+  useEffect(() => {
+    if (isFilterOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isFilterOpen]);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -111,243 +125,278 @@ export default function SearchPage() {
 
   return (
     <main className="flex-1 flex flex-col w-full max-w-360 mx-auto px-4 lg:px-10 py-6">
-      <div className="flex flex-col lg:flex-row gap-8 items-start h-full">
-        {/* Sidebar */}
-        <aside className="w-full lg:w-[320px] shrink-0 space-y-6 lg:sticky lg:top-24 h-auto lg:h-[calc(100vh-8rem)] lg:overflow-y-auto pr-2 pb-10 custom-scrollbar">
-          <div className="flex items-center justify-between">
-            <h3 className="text-text-main text-xl font-bold leading-tight drop-shadow-sm">
-              Bộ lọc
-            </h3>
-            <button
-              onClick={handleReset}
-              className="text-primary text-sm font-bold hover:underline flex items-center gap-1 group"
-            >
-              <RotateCcw className="w-3 h-3 group-hover:rotate-45 transition-transform" />
-              Đặt lại
-            </button>
-          </div>
+      <div className="flex flex-col lg:flex-row gap-8 items-start h-full relative">
+        {/* Overlay for mobile ONLY */}
+        <div
+          className={`
+            fixed inset-0 bg-black/40 backdrop-blur-sm z-60 lg:hidden transition-opacity duration-300
+            ${
+              isFilterOpen
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none"
+            }
+          `}
+          onClick={() => setIsFilterOpen(false)}
+        />
 
-          {/* Keyword Search */}
-          <div className="space-y-3">
-            <p className="text-text-main text-base font-bold leading-normal">
-              Tìm kiếm
-            </p>
-            <div className="flex w-full items-center rounded-lg border border-input-border bg-white px-3 py-2.5 shadow-sm focus-within:ring-2 ring-primary/20 transition-all">
-              <Search className="text-text-secondary w-5 h-5 mr-2" />
-              <input
-                className="w-full bg-transparent text-sm border-none p-0 focus:ring-0 text-text-main placeholder-secondary"
-                placeholder="Nhập từ khóa tìm kiếm..."
-                type="text"
-                value={filters.keyword}
-                onChange={(e) =>
-                  setFilters({ ...filters, keyword: e.target.value })
-                }
-              />
+        {/* Sidebar Container */}
+        <div
+          className={`
+            z-70 transition-all duration-300 ease-in-out
+            fixed inset-y-0 left-0 w-full 
+            lg:relative lg:translate-x-0 lg:w-[320px] lg:z-0 lg:inset-auto
+            ${
+              isFilterOpen
+                ? "translate-x-0"
+                : "-translate-x-full lg:translate-x-0"
+            }
+          `}
+        >
+          <aside className="w-full bg-white p-6 shadow-2xl lg:shadow-none lg:p-0 lg:pr-2 lg:bg-transparent space-y-6 lg:sticky lg:top-24 h-full lg:h-full lg:max-h-[calc(100vh)] overflow-y-auto overflow-x-hidden pr-2 pb-10 custom-scrollbar">
+            <div className="flex items-center justify-between">
+              <h3 className="text-text-main text-xl font-bold leading-tight drop-shadow-sm">
+                Bộ lọc
+              </h3>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleReset}
+                  className="text-primary text-sm font-bold hover:underline flex items-center gap-1 group"
+                >
+                  <RotateCcw className="w-3 h-3 group-hover:rotate-45 transition-transform" />
+                  Đặt lại
+                </button>
+                <button
+                  onClick={() => setIsFilterOpen(false)}
+                  className="lg:hidden p-1 hover:bg-slate-100 rounded-full transition-colors"
+                  aria-label="Close filters"
+                >
+                  <X className="w-6 h-6 text-text-main" />
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Location Filters */}
-          <div className="space-y-3">
-            <p className="text-text-main text-base font-bold leading-normal">
-              Vị trí
-            </p>
-            <div className="space-y-2">
-              <div className="relative group">
-                <select
-                  className="w-full appearance-none rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm focus:ring-2 ring-primary/20 text-text-main outline-none transition-all pr-10"
-                  value={filters.province_code || ""}
+            {/* Keyword Search */}
+            <div className="space-y-3">
+              <p className="text-text-main text-base font-bold leading-normal">
+                Tìm kiếm
+              </p>
+              <div className="flex w-full items-center rounded-lg border border-input-border bg-white px-3 py-2.5 shadow-sm focus-within:ring-2 ring-primary/20 transition-all">
+                <Search className="text-text-secondary w-5 h-5 mr-2" />
+                <input
+                  className="w-full bg-transparent text-sm border-none p-0 focus:ring-0 text-text-main placeholder-secondary"
+                  placeholder="Nhập từ khóa tìm kiếm..."
+                  type="text"
+                  value={filters.keyword}
                   onChange={(e) =>
+                    setFilters({ ...filters, keyword: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Location Filters */}
+            <div className="space-y-3">
+              <p className="text-text-main text-base font-bold leading-normal">
+                Vị trí
+              </p>
+              <div className="space-y-2">
+                <div className="relative group">
+                  <select
+                    className="w-full appearance-none rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm focus:ring-2 ring-primary/20 text-text-main outline-none transition-all pr-10"
+                    value={filters.province_code || ""}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        province_code: e.target.value
+                          ? Number(e.target.value)
+                          : undefined,
+                        ward_code: undefined,
+                      })
+                    }
+                  >
+                    <option value="">Chọn Tỉnh/Thành phố</option>
+                    {provinces?.map((p: any) => (
+                      <option key={p.code} value={p.code}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
+                </div>
+
+                <div className="relative group">
+                  <select
+                    className="w-full appearance-none rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm focus:ring-2 ring-primary/20 text-text-main outline-none transition-all pr-10 disabled:opacity-50 disabled:bg-slate-50"
+                    value={filters.ward_code || ""}
+                    disabled={!filters.province_code}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        ward_code: e.target.value
+                          ? Number(e.target.value)
+                          : undefined,
+                      })
+                    }
+                  >
+                    <option value="">Chọn Quận/Huyện/Phường/Xã</option>
+                    {wards?.map((w: any) => (
+                      <option key={w.code} value={w.code}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 transition-all">
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-text-main text-base font-bold leading-normal">
+                  Khoảng giá
+                </p>
+                <div className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded-full">
+                  {formatVietnamesePrice(filters.min_price)} -{" "}
+                  {formatVietnamesePrice(filters.max_price)}
+                </div>
+              </div>
+              <div className="space-y-6 pt-2">
+                <RangeSlider
+                  min={0}
+                  max={50000000}
+                  step={500000}
+                  values={[filters.min_price, filters.max_price]}
+                  onChange={(values) =>
                     setFilters({
                       ...filters,
-                      province_code: e.target.value
-                        ? Number(e.target.value)
-                        : undefined,
-                      ward_code: undefined,
+                      min_price: values[0],
+                      max_price: values[1],
                     })
                   }
-                >
-                  <option value="">Chọn Tỉnh/Thành phố</option>
-                  {provinces?.map((p: any) => (
-                    <option key={p.code} value={p.code}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
+                  formatLabel={(val) => formatVietnamesePrice(val)}
+                />
               </div>
+            </div>
 
-              <div className="relative group">
-                <select
-                  className="w-full appearance-none rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm focus:ring-2 ring-primary/20 text-text-main outline-none transition-all pr-10 disabled:opacity-50 disabled:bg-slate-50"
-                  value={filters.ward_code || ""}
-                  disabled={!filters.province_code}
-                  onChange={(e) =>
+            {/* Area Range */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 transition-all">
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-text-main text-base font-bold leading-normal">
+                  Diện tích
+                </p>
+                <div className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded-full">
+                  {filters.min_area} m² - {filters.max_area} m²
+                </div>
+              </div>
+              <div className="space-y-6 pt-2">
+                <RangeSlider
+                  min={0}
+                  max={100}
+                  step={1}
+                  values={[filters.min_area, filters.max_area]}
+                  onChange={(values) =>
                     setFilters({
                       ...filters,
-                      ward_code: e.target.value
-                        ? Number(e.target.value)
-                        : undefined,
+                      min_area: values[0],
+                      max_area: values[1],
                     })
                   }
-                >
-                  <option value="">Chọn Quận/Huyện/Phường/Xã</option>
-                  {wards?.map((w: any) => (
-                    <option key={w.code} value={w.code}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
+                  formatLabel={(val) => `${val} m²`}
+                />
               </div>
             </div>
-          </div>
 
-          {/* Price Range */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 transition-all">
-            <div className="flex justify-between items-center mb-4">
+            {/* Property Types */}
+            <div className="space-y-3">
               <p className="text-text-main text-base font-bold leading-normal">
-                Khoảng giá
+                Loại bất động sản
               </p>
-              <div className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded-full">
-                {formatVietnamesePrice(filters.min_price)} -{" "}
-                {formatVietnamesePrice(filters.max_price)}
-              </div>
-            </div>
-            <div className="space-y-6 pt-2">
-              <RangeSlider
-                min={0}
-                max={50000000}
-                step={500000}
-                values={[filters.min_price, filters.max_price]}
-                onChange={(values) =>
-                  setFilters({
-                    ...filters,
-                    min_price: values[0],
-                    max_price: values[1],
-                  })
-                }
-                formatLabel={(val) => formatVietnamesePrice(val)}
-              />
-            </div>
-          </div>
-
-          {/* Area Range */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 transition-all">
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-text-main text-base font-bold leading-normal">
-                Diện tích
-              </p>
-              <div className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded-full">
-                {filters.min_area} m² - {filters.max_area} m²
-              </div>
-            </div>
-            <div className="space-y-6 pt-2">
-              <RangeSlider
-                min={0}
-                max={100}
-                step={1}
-                values={[filters.min_area, filters.max_area]}
-                onChange={(values) =>
-                  setFilters({
-                    ...filters,
-                    min_area: values[0],
-                    max_area: values[1],
-                  })
-                }
-                formatLabel={(val) => `${val} m²`}
-              />
-            </div>
-          </div>
-
-          {/* Property Types */}
-          <div className="space-y-3">
-            <p className="text-text-main text-base font-bold leading-normal">
-              Loại bất động sản
-            </p>
-            <div className="space-y-2">
-              {listingTypes?.map((type: any) => (
-                <label
-                  key={type.code}
-                  className="flex gap-x-3 items-center cursor-pointer group"
-                >
+              <div className="grid grid-cols-3 lg:grid-cols-1 gap-2">
+                {listingTypes?.map((type: any) => (
+                  <label
+                    key={type.code}
+                    className="flex gap-x-2 lg:gap-x-3 items-center cursor-pointer group"
+                  >
+                    <input
+                      type="radio"
+                      name="listing_type"
+                      className="h-4 w-4 lg:h-5 lg:w-5 rounded border-input-border text-primary focus:ring-0 transition-all"
+                      checked={filters.listing_type_code === type.code}
+                      onChange={() =>
+                        setFilters({ ...filters, listing_type_code: type.code })
+                      }
+                    />
+                    <span className="text-text-main text-[13px] lg:text-sm font-medium group-hover:text-primary transition-colors truncate">
+                      {type.name}
+                    </span>
+                  </label>
+                ))}
+                <label className="flex gap-x-2 lg:gap-x-3 items-center cursor-pointer group">
                   <input
                     type="radio"
                     name="listing_type"
-                    className="h-5 w-5 rounded border-input-border text-primary focus:ring-0 transition-all"
-                    checked={filters.listing_type_code === type.code}
+                    className="h-4 w-4 lg:h-5 lg:w-5 rounded border-input-border text-primary focus:ring-0 transition-all"
+                    checked={!filters.listing_type_code}
                     onChange={() =>
-                      setFilters({ ...filters, listing_type_code: type.code })
+                      setFilters({ ...filters, listing_type_code: undefined })
                     }
                   />
-                  <span className="text-text-main text-sm font-medium group-hover:text-primary transition-colors">
-                    {type.name}
+                  <span className="text-text-main text-[13px] lg:text-sm font-medium group-hover:text-primary transition-colors">
+                    Tất cả
                   </span>
                 </label>
-              ))}
-              <label className="flex gap-x-3 items-center cursor-pointer group">
-                <input
-                  type="radio"
-                  name="listing_type"
-                  className="h-5 w-5 rounded border-input-border text-primary focus:ring-0 transition-all"
-                  checked={!filters.listing_type_code}
-                  onChange={() =>
-                    setFilters({ ...filters, listing_type_code: undefined })
-                  }
-                />
-                <span className="text-text-main text-sm font-medium group-hover:text-primary transition-colors">
-                  Tất cả
-                </span>
-              </label>
+              </div>
             </div>
-          </div>
 
-          {/* Bedrooms */}
-          <div className="space-y-3">
-            <p className="text-text-main text-base font-bold leading-normal">
-              Phòng ngủ
-            </p>
-            <div className="flex gap-2">
-              {[undefined, 1, 2, 3].map((val) => (
-                <button
-                  key={val === undefined ? "any" : val}
-                  onClick={() => setFilters({ ...filters, beds: val })}
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-all ${
-                    filters.beds === val
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-input-border bg-white hover:border-primary hover:text-primary"
-                  }`}
-                >
-                  {val === undefined ? "Bất kỳ" : `${val}+`}
-                </button>
-              ))}
+            {/* Bedrooms */}
+            <div className="space-y-3">
+              <p className="text-text-main text-base font-bold leading-normal">
+                Phòng ngủ
+              </p>
+              <div className="flex gap-2">
+                {[undefined, 1, 2, 3].map((val) => (
+                  <button
+                    key={val === undefined ? "any" : val}
+                    onClick={() => setFilters({ ...filters, beds: val })}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-all ${
+                      filters.beds === val
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-input-border bg-white hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    {val === undefined ? "Bất kỳ" : `${val}+`}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Amenities */}
-          <div className="space-y-3 pt-2 border-t border-slate-200">
-            <p className="text-text-main text-base font-bold leading-normal pt-2">
-              Tiện nghi
-            </p>
-            <div className="space-y-2">
-              {amenities?.map((amenity: any) => (
-                <label
-                  key={amenity.id}
-                  className="flex gap-x-3 items-center cursor-pointer group"
-                >
-                  <input
-                    type="checkbox"
-                    className="h-5 w-5 rounded border-input-border text-primary focus:ring-0 transition-all"
-                    checked={filters.amenities.includes(amenity.id)}
-                    onChange={() => toggleAmenity(amenity.id)}
-                  />
-                  <span className="text-text-main text-sm font-medium group-hover:text-primary transition-colors">
-                    {amenity.name}
-                  </span>
-                </label>
-              ))}
+            {/* Amenities */}
+            <div className="space-y-3 pt-2 border-t border-slate-200">
+              <p className="text-text-main text-base font-bold leading-normal pt-2">
+                Tiện nghi
+              </p>
+              <div className="grid grid-cols-3 lg:grid-cols-1 gap-2">
+                {amenities?.map((amenity: any) => (
+                  <label
+                    key={amenity.id}
+                    className="flex gap-x-2 lg:gap-x-3 items-center cursor-pointer group"
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 lg:h-5 lg:w-5 rounded border-input-border text-primary focus:ring-0 transition-all"
+                      checked={filters.amenities.includes(amenity.id)}
+                      onChange={() => toggleAmenity(amenity.id)}
+                    />
+                    <span className="text-text-main text-[13px] lg:text-sm font-medium group-hover:text-primary transition-colors truncate">
+                      {amenity.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
-        </aside>
+          </aside>
+        </div>
 
         {/* Results Area */}
         <div className="flex-1 flex flex-col w-full min-w-0">
@@ -368,9 +417,20 @@ export default function SearchPage() {
               </p>
             </div>
 
+            <div>
+              {/* Mobile Filter Toggle */}
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className="lg:hidden flex-1 flex items-center justify-center gap-2 bg-white border border-input-border px-4 py-2 rounded-lg text-sm font-bold text-text-main hover:border-primary transition-all active:scale-95 shadow-sm"
+              >
+                <Filter className="w-4 h-4 text-primary" />
+                Bộ lọc để mở ra
+              </button>
+            </div>
+
             <div className="flex items-center gap-3 w-full sm:w-auto">
               {/* Sort Dropdown */}
-              <div className="relative group">
+              <div className="relative group flex-1 sm:flex-none">
                 <select
                   className="flex items-center gap-2 bg-white border border-input-border px-4 py-2 rounded-lg text-sm font-medium text-text-main hover:border-primary transition-colors outline-none appearance-none pr-10"
                   value={filters.sort_by}
@@ -408,7 +468,7 @@ export default function SearchPage() {
               </p>
             </div>
           ) : listings && listings.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3  gap-6">
               {listings.map((item: any) => (
                 <ListingCard
                   key={item.id}

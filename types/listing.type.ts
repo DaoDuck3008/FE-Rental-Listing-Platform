@@ -9,6 +9,8 @@ export default interface createListingProps {
   province_code: number | null;
   ward_code: number | null;
   address: string;
+  longitude: number | null;
+  latitude: number | null;
   amenities: string[];
   images?: File[];
   description: string;

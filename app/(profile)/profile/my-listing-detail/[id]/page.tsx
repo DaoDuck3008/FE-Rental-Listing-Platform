@@ -27,6 +27,7 @@ import {
 import LoadingOverlay from "@/components/common/loadingOverlay";
 import Icon from "@/components/ui/icon";
 import ConfirmDeleteModal from "@/components/listing/confirmDeleteModal";
+import ListingViewMapModal from "@/components/listing/listingViewMapModal";
 
 export default function MyListingDetailPage() {
   const { id } = useParams();
@@ -35,6 +36,7 @@ export default function MyListingDetailPage() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchListingDetail = async () => {
@@ -236,16 +238,24 @@ export default function MyListingDetailPage() {
             <h3 className="text-xl font-bold text-slate-900">
               Vị trí bài đăng
             </h3>
-            <div className="relative w-full aspect-video md:aspect-21/9 rounded-xl overflow-hidden group bg-slate-100">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
-                style={{ backgroundImage: "url('/MapBackground.png')" }}
+            <div
+              onClick={() => setIsMapModalOpen(true)}
+              className="relative w-full aspect-video md:aspect-21/9 rounded-xl overflow-hidden group bg-slate-100 cursor-pointer border border-slate-200"
+            >
+              <img
+                alt="Vị trí trên bản đồ"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                src={
+                  listing.latitude && listing.longitude
+                    ? `https://maps.googleapis.com/maps/api/staticmap?center=${listing.latitude},${listing.longitude}&zoom=16&size=1200x600&markers=color:red%7C${listing.latitude},${listing.longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+                    : "https://lh3.googleusercontent.com/aida-public/AB6AXuCeAVSSsPmznwMIv5cR4lgMGVP4Z_UB8rLGSXonecm9SD-7lHW21mu1vLPCUiWYSCURucpYJTyaeofJguU0XlyA9e3WJVZ3ZMtNhnEYRble5c0NKt2JXhezQtUNXZAbzHRSMD6TfLHAk1Aj7WRw29eA4jTzZWiWw3Xcv9_kSGB91cNdectrEl_PjXkJ4MBA89qA2lt8jvHfhzH7eE3UlqgXyvKjROWg10wqlKc7M92rbMnVdyBvg2riDZd-g4Ku7DhsJcdomZlYfEMR"
+                }
               />
-              <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                <div className="bg-white/90 backdrop-blur-sm text-slate-900 px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 border border-white/20">
+              <div className="absolute inset-0 bg-black/10 flex items-center justify-center group-hover:bg-black/20 transition-all">
+                <button className="bg-white text-slate-900 px-6 py-3 rounded-full font-bold shadow-xl hover:scale-110 active:scale-95 transition-all flex items-center gap-2">
                   <MapPin size={20} className="text-primary" />
-                  Vị trí đã lưu
-                </div>
+                  Xem bản đồ chi tiết
+                </button>
               </div>
             </div>
             <p className="text-sm text-slate-500">Địa chỉ: {listing.address}</p>
@@ -310,6 +320,16 @@ export default function MyListingDetailPage() {
         <ConfirmDeleteModal
           OnClose={() => setOpenDeleteModal(false)}
           OnSubmit={() => handleDeleteListing()}
+        />
+      )}
+
+      {/* Map Modal */}
+      {listing.latitude && listing.longitude && (
+        <ListingViewMapModal
+          isOpen={isMapModalOpen}
+          onClose={() => setIsMapModalOpen(false)}
+          location={{ lat: listing.latitude, lng: listing.longitude }}
+          address={listing.address}
         />
       )}
     </main>

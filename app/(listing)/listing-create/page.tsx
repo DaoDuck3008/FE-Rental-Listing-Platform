@@ -33,6 +33,11 @@ import SuccessModal from "@/components/listing/successModal";
 import { useRouter } from "next/navigation";
 import WarningModal from "@/components/ui/warningModal";
 import ListingPreviewModal from "@/components/listing/listingPreviewModal";
+import MapPickerModal from "@/components/listing/mapPickerModal";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { useRef } from "react";
+
+const libraries: "places"[] = ["places"];
 
 export default function CreateNewListingPage() {
   const [form, setForm] = useState<createListingProps>({
@@ -46,6 +51,8 @@ export default function CreateNewListingPage() {
     province_code: null,
     ward_code: null,
     address: "",
+    longitude: null,
+    latitude: null,
     amenities: [],
     description: "",
     showPhoneNumber: true,
@@ -58,6 +65,13 @@ export default function CreateNewListingPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [openWaring, setOpenWarning] = useState<boolean>(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState<boolean>(false);
+
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    libraries,
+  });
 
   const { provinces, isLoading: provinceIsLoading } = useProvinces();
   const { wards, isLoading: wardIsLoading } = useWardsByProvince(
@@ -94,6 +108,35 @@ export default function CreateNewListingPage() {
     setForm((prev) => ({
       ...prev,
       [name]: value,
+      ...(name === "address" ? { latitude: null, longitude: null } : {}),
+    }));
+  };
+
+  const handlePlaceChanged = () => {
+    if (!autocompleteRef.current) {
+      return;
+    }
+
+    const place = autocompleteRef.current.getPlace();
+
+    if (!place.geometry || !place.geometry.location) return;
+
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+
+    setForm((prev) => ({
+      ...prev,
+      address: place.formatted_address || prev.address,
+      latitude: lat,
+      longitude: lng,
+    }));
+  };
+
+  const handleLocationSelect = (lat: number, lng: number) => {
+    setForm((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
     }));
   };
 
@@ -152,7 +195,7 @@ export default function CreateNewListingPage() {
   const handleSubmit = async () => {
     try {
       if (!CreateListingValidate({ form, images })) return;
-
+      console.log(">>> form:", form);
       setIsSubmitting(true);
       const res = await createListing(form, images, coverImageIndex);
       setIsSubmitting(false);
@@ -230,6 +273,7 @@ export default function CreateNewListingPage() {
     }
   };
 
+  if (!isLoaded) return null;
   return (
     <>
       <main className="grow py-8 px-4 sm:px-6">
@@ -498,30 +542,55 @@ export default function CreateNewListingPage() {
                   <label className="block text-sm font-bold text-text-main mb-2">
                     Địa chỉ chính xác <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    value={form.address || ""}
-                    name="address"
-                    onChange={handleChange}
-                    className="w-full h-12 px-4 rounded-lg border border-input-border bg-white text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    placeholder="Số nhà, tên đường, khu dân cư..."
-                    type="text"
-                  />
+                  <Autocomplete
+                    onLoad={(autocomplete) =>
+                      (autocompleteRef.current = autocomplete)
+                    }
+                    onPlaceChanged={handlePlaceChanged}
+                    options={{
+                      componentRestrictions: { country: "vn" },
+                      fields: ["geometry", "formatted_address"],
+                    }}
+                  >
+                    <input
+                      value={form.address || ""}
+                      name="address"
+                      onChange={handleChange}
+                      className="w-full h-12 px-4 rounded-lg border border-input-border bg-white text-text-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                      placeholder="Số nhà, tên đường, khu dân cư..."
+                      type="text"
+                    />
+                  </Autocomplete>
                 </div>
-                <div className="md:col-span-3 rounded-xl overflow-hidden h-64 relative bg-gray-200 border border-input-border group cursor-pointer">
+                <div
+                  onClick={() => setIsMapModalOpen(true)}
+                  className="md:col-span-3 rounded-xl overflow-hidden h-72 relative bg-gray-200 border border-input-border group cursor-pointer transition-all hover:ring-2 ring-primary/20"
+                >
                   <img
-                    alt="Map view of Ho Chi Minh City streets"
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                    data-location="Ho Chi Minh City"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeAVSSsPmznwMIv5cR4lgMGVP4Z_UB8rLGSXonecm9SD-7lHW21mu1vLPCUiWYSCURucpYJTyaeofJguU0XlyA9e3WJVZ3ZMtNhnEYRble5c0NKt2JXhezQtUNXZAbzHRSMD6TfLHAk1Aj7WRw29eA4jTzZWiWw3Xcv9_kSGB91cNdectrEl_PjXkJ4MBA89qA2lt8jvHfhzH7eE3UlqgXyvKjROWg10wqlKc7M92rbMnVdyBvg2riDZd-g4Ku7DhsJcdomZlYfEMR"
+                    alt="Map view showing the selected location"
+                    className="w-full h-full object-cover transition-all group-hover:scale-105"
+                    src={
+                      form.latitude && form.longitude
+                        ? `https://maps.googleapis.com/maps/api/staticmap?center=${form.latitude},${form.longitude}&zoom=17&size=800x400&markers=color:red%7C${form.latitude},${form.longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+                        : "https://lh3.googleusercontent.com/aida-public/AB6AXuCeAVSSsPmznwMIv5cR4lgMGVP4Z_UB8rLGSXonecm9SD-7lHW21mu1vLPCUiWYSCURucpYJTyaeofJguU0XlyA9e3WJVZ3ZMtNhnEYRble5c0NKt2JXhezQtUNXZAbzHRSMD6TfLHAk1Aj7WRw29eA4jTzZWiWw3Xcv9_kSGB91cNdectrEl_PjXkJ4MBA89qA2lt8jvHfhzH7eE3UlqgXyvKjROWg10wqlKc7M92rbMnVdyBvg2riDZd-g4Ku7DhsJcdomZlYfEMR"
+                    }
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                    <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-primary font-bold">
-                      <span className="material-symbols-outlined">
-                        <CloudUpload />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-all">
+                    <div className="bg-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-primary font-bold transform transition-transform group-hover:scale-110 active:scale-95">
+                      <MapPin size={22} className="animate-bounce" />
+                      <span>
+                        {form.latitude
+                          ? "Thay đổi vị trí trên bản đồ"
+                          : "Chọn địa chỉ chính xác trên bản đồ"}
                       </span>
-                      Chọn vị trí trên bản đồ
                     </div>
                   </div>
+                  {form.latitude && (
+                    <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-bold text-text-secondary border border-border-color shadow-sm">
+                      Đã xác định tọa độ: {form.latitude.toFixed(6)},{" "}
+                      {form.longitude?.toFixed(6)}
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -727,6 +796,17 @@ export default function CreateNewListingPage() {
         data={form}
         allAmenities={amenities || []}
         images={images || []}
+      />
+
+      <MapPickerModal
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+        onSelectLocation={handleLocationSelect}
+        initialLocation={
+          form.latitude && form.longitude
+            ? { lat: form.latitude, lng: form.longitude }
+            : null
+        }
       />
     </>
   );
