@@ -1,3 +1,4 @@
+import { Range } from "react-range";
 import createListingProps from "@/types/listing.type";
 import { api } from "./api";
 
@@ -46,8 +47,11 @@ export const getPublicListings = async (params: {
   beds?: number;
   amenities?: string[];
   sort_by?: string;
+  centerLat?: number;
+  centerLong?: number;
+  radius?: number;
 }) => {
-  const { amenities, ...rest } = params;
+  const { amenities, centerLat, centerLong, radius, ...rest } = params;
   let url = `/api/listings?`;
   Object.entries(rest).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
@@ -56,6 +60,9 @@ export const getPublicListings = async (params: {
   });
   if (amenities && amenities.length > 0) {
     url += `amenities=${amenities.join(",")}&`;
+  }
+  if (centerLat !== undefined && centerLong !== undefined && radius !== undefined && radius >= 100) {
+    url += `centerLat=${centerLat}&centerLong=${centerLong}&radius=${radius}&`;
   }
   const res = await api.get(url.slice(0, -1));
   return res.data;

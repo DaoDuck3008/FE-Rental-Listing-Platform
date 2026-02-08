@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import ListingCard from "@/components/listing/listingCard";
 import ListingCard3 from "@/components/listing/listingCard3";
 import MapView from "@/components/listing/MapView";
@@ -43,6 +43,9 @@ export default function SearchPage() {
     sort_by: "DATE_DESC",
     page: 1,
     limit: viewMode === "map" ? 5 : undefined,
+    centerLat: undefined as number | undefined,
+    centerLong: undefined as number | undefined,
+    radius: undefined as number | undefined,
   });
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -112,6 +115,9 @@ export default function SearchPage() {
       sort_by: "DATE_DESC",
       page: 1,
       limit: viewMode === "map" ? 5 : undefined,
+      centerLat: undefined,
+      centerLong: undefined,
+      radius: undefined,
     });
   };
 
@@ -130,6 +136,33 @@ export default function SearchPage() {
     { label: "Giá thấp đến cao", value: "PRICE_ASC" },
     { label: "Giá cao đến thấp", value: "PRICE_DESC" },
   ];
+
+  const handleSearchRadiusChange = useCallback(
+    (
+      lat: number | undefined,
+      lng: number | undefined,
+      rad: number | undefined
+    ) => {
+      setFilters((prev) => {
+        // Chỉ cập nhật khi có sự thay đổi
+        if (
+          prev.centerLat === lat &&
+          prev.centerLong === lng &&
+          prev.radius === rad
+        ) {
+          return prev;
+        }
+        return {
+          ...prev,
+          centerLat: lat,
+          centerLong: lng,
+          radius: rad,
+          page: 1,
+        };
+      });
+    },
+    []
+  );
 
   // Khi chuyển đổi sang chế độ xem với Map thì đặt limit = 5
   useEffect(() => {
@@ -742,7 +775,10 @@ export default function SearchPage() {
                 {/* Right Map Panel */}
                 <div className="hidden lg:block w-[55%] xl:w-[60%] relative bg-[#e5e3df] overflow-hidden">
                   {listings && listings.length > 0 ? (
-                    <MapView listings={listings} />
+                    <MapView
+                      listings={listings}
+                      onSearchRadiusChange={handleSearchRadiusChange}
+                    />
                   ) : (
                     <div className="flex items-center justify-center h-full bg-slate-100">
                       <p className="text-slate-500 font-medium">
