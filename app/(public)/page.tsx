@@ -1,7 +1,10 @@
+"use client";
+
 import Dropdown from "@/components/common/dropdown";
 import PostButton from "@/components/common/postBtn";
 import RecommendCard from "@/components/homePage/recommendCard";
 import ListingCard from "@/components/listing/listingCard";
+import { getPublicListings } from "@/services/listing.api";
 import {
   ArrowRight,
   Search,
@@ -9,8 +12,36 @@ import {
   BanknoteX,
   Clock,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Link from "next/link";
 
 export default function Home() {
+  const [listings, setListings] = useState<any>([]);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const result = await getPublicListings({
+          page: 1,
+          limit: 3,
+          sort_by: "DATE_DESC",
+        });
+        setListings(result.data);
+      } catch (error: any) {
+        const res = error.response.data;
+        if (!res) {
+          toast.error("Lỗi không xác định. Vui lòng thử lại sau.");
+          return;
+        }
+        toast.error(res.message || "Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+        return;
+      }
+    };
+
+    fetchListings();
+  }, []);
+
   return (
     <>
       <div>
@@ -83,14 +114,6 @@ export default function Home() {
                 className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50  transition-colors group"
                 href="#"
               >
-                {/* <div
-                  className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden"
-                  data-alt="Hình thu nhỏ đường chân trời Thành phố Hồ Chí Minh"
-                  //     style="
-                  //   background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAziFJZfg_OAPSueaukAV3mDjvDhkf0Atqi1rDPyJvV5NNxDBWp84WrE843rZqH4lbzKZG14kyh-G9YX-x1Fy0RHtwqfLD9PoB1ZO1dnr6VYRclxadvC8Lf-TqkOKpsNeWc5iRWToFUK8sJVmSnbgd5-n_n3qUEykpYx7izy7kOSIEsKgNggIK662MerUQGPC-9cR_peo4zGaJJ3AFbdXBxW0woWbEkmPvioR6bcjwLJNMFJ66MXIXVL0siKz3lXv_P6iTtD_pKz9u9');
-                  //   background-size: cover;
-                  // "
-                ></div> */}
                 <span className="font-semibold text-sm text-slate-700  group-hover:text-primary">
                   TP. Hồ Chí Minh
                 </span>
@@ -104,7 +127,7 @@ export default function Home() {
                 </span>
               </a>
               <a
-                className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border-slate-200  hover:border-primary/50  transition-colors group"
+                className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50  transition-colors group"
                 href="#"
               >
                 <span className="font-semibold text-sm text-slate-700  group-hover:text-primary">
@@ -142,48 +165,36 @@ export default function Home() {
                 Những bất động sản mới được thêm hôm nay trong khu vực của bạn.
               </p>
             </div>
-            <a
+            <Link
               className="hidden md:flex items-center text-primary font-bold hover:underline"
-              href="#"
+              href="/listings"
             >
               Xem tất cả
               <span className="material-symbols-outlined ml-1 text-sm">
                 <ArrowRight />
               </span>
-            </a>
+            </Link>
           </div>
           {/* 3 newest listings */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ListingCard
-              title="Căn hộ Loft cao cấp trung tâm"
-              cost="2.400.000"
-              address="123 Đường Hai Bà Trưng, Quận 1"
-              imgUrl="/HomePage/Listing1.png"
-              beds={2}
-              baths={2}
-              area={54.2}
-              status={null}
-            />
-            <ListingCard
-              title="Căn hộ Loft cao cấp trung tâm"
-              cost="2.400.000"
-              address="123 Đường Hai Bà Trưng, Quận 1"
-              imgUrl="/HomePage/Listing1.png"
-              beds={2}
-              baths={2}
-              area={54.2}
-              status={null}
-            />
-            <ListingCard
-              title="Căn hộ Loft cao cấp trung tâm"
-              cost="2.400.000"
-              address="123 Đường Hai Bà Trưng, Quận 1"
-              imgUrl="/HomePage/Listing1.png"
-              beds={2}
-              baths={2}
-              area={54.2}
-              status={null}
-            />
+            {listings && listings.length > 0 ? (
+              listings.map((listing: any) => (
+                <ListingCard
+                  key={listing.id}
+                  id={listing.id}
+                  title={listing.title}
+                  cost={listing.price.toLocaleString("vi-VN")}
+                  address={listing.address}
+                  imgUrl={listing.images[0].image_url ?? "./NoImage.png"}
+                  beds={listing.bedrooms}
+                  baths={listing.bathrooms}
+                  area={listing.area}
+                  status={listing.status}
+                />
+              ))
+            ) : (
+              <p>Không có tin đăng nào để hiển thị.</p>
+            )}
           </div>
           <div className="mt-8 flex justify-center md:hidden">
             <button className="w-full py-3 border border-slate-300  rounded-lg text-slate-900  font-bold hover:bg-slate-50 ">

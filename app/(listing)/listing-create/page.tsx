@@ -195,7 +195,6 @@ export default function CreateNewListingPage() {
   const handleSubmit = async () => {
     try {
       if (!CreateListingValidate({ form, images })) return;
-      console.log(">>> form:", form);
       setIsSubmitting(true);
       const res = await createListing(form, images, coverImageIndex);
       setIsSubmitting(false);

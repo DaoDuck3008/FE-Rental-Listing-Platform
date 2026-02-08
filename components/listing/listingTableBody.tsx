@@ -6,6 +6,7 @@ import {
   Pen,
   Trash2,
   RefreshCw,
+  SquarePen,
 } from "lucide-react";
 import {
   formatVietnameseDate,
@@ -193,10 +194,6 @@ export default function ListingTableBody({
   // Format số lượt xem
   const formattedViews = formatViews(views);
 
-  const openListingUpdate = (listingId: string) => {
-    router.replace(`/listing-update/${listingId}`);
-  };
-
   return (
     <tr className="group hover:bg-slate-50 transition-colors">
       <td className="px-6 py-4">
@@ -295,19 +292,29 @@ export default function ListingTableBody({
             </>
           )}
 
-          {status !== "PENDING" ? (
-            <button
+          {status !== "PENDING" && status !== "DRAFT" && (
+            <Link
               className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
               title="Chỉnh sửa"
-              onClick={() => openListingUpdate(id)}
+              href={`/listing-update/${id}`}
             >
               <span className="material-symbols-outlined text-[20px]">
                 <Pen size={15} />
               </span>
-            </button>
-          ) : (
-            <></>
+            </Link>
           )}
+          {status === "DRAFT" && (
+            <Link
+              className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              title="Hoàn thiện bài đăng"
+              href={`/listing-update-draft/${id}`}
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                <SquarePen size={15} />
+              </span>
+            </Link>
+          )}
+
           <button
             className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             title="Xóa tin"

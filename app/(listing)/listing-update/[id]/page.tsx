@@ -29,6 +29,7 @@ import {
   getListingDetail,
   updateSoftListing,
   updateHardListing,
+  getMyListingDetail,
 } from "@/services/listing.api";
 import LoadingOverlay from "@/components/common/loadingOverlay";
 import SuccessModal from "@/components/listing/successModal";
@@ -37,6 +38,8 @@ import ListingPreviewModal from "@/components/listing/listingPreviewModal";
 import MapPickerModal from "@/components/listing/mapPickerModal";
 import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 import { useRef } from "react";
+
+const libraries: "places"[] = ["places"];
 
 export default function UpdateListingPage() {
   const { id } = useParams();
@@ -76,7 +79,7 @@ export default function UpdateListingPage() {
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-    libraries: ["places"],
+    libraries,
   });
 
   const { provinces, isLoading: provinceIsLoading } = useProvinces();
@@ -95,7 +98,7 @@ export default function UpdateListingPage() {
     const fetchListing = async () => {
       if (!id) return;
       try {
-        const res = await getListingDetail(id as string);
+        const res = await getMyListingDetail(id as string);
         if (res.success) {
           const data = res.data;
           const formData: createListingProps = {
@@ -630,12 +633,17 @@ export default function UpdateListingPage() {
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-all">
                     <div className="bg-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-primary font-bold transform transition-transform group-hover:scale-110 active:scale-95">
                       <MapPin size={22} className="animate-bounce" />
-                      <span>{form.latitude ? "Thay đổi vị trí trên bản đồ" : "Chọn địa chỉ chính xác trên bản đồ"}</span>
+                      <span>
+                        {form.latitude
+                          ? "Thay đổi vị trí trên bản đồ"
+                          : "Chọn địa chỉ chính xác trên bản đồ"}
+                      </span>
                     </div>
                   </div>
                   {form.latitude && (
                     <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-bold text-text-secondary border border-border-color shadow-sm">
-                      Đã xác định tọa độ: {form.latitude.toFixed(6)}, {form.longitude?.toFixed(6)}
+                      Đã xác định tọa độ: {form.latitude.toFixed(6)},{" "}
+                      {form.longitude?.toFixed(6)}
                     </div>
                   )}
                 </div>
@@ -851,7 +859,11 @@ export default function UpdateListingPage() {
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
         onSelectLocation={handleLocationSelect}
-        initialLocation={form.latitude && form.longitude ? { lat: form.latitude, lng: form.longitude } : null}
+        initialLocation={
+          form.latitude && form.longitude
+            ? { lat: form.latitude, lng: form.longitude }
+            : null
+        }
       />
     </>
   );
