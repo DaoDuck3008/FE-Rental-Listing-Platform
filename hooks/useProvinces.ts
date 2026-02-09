@@ -10,11 +10,11 @@ import {
 
 export const useProvinces = () => {
   const { data, error, isLoading } = useSWR("provinces", getProvinces, {
-    revalidateOnFocus: true,
-    revalidateOnReconnect: true,
-    revalidateIfStale: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    revalidateIfStale: false,
+    dedupingInterval: 60000,
 
-    dedupingInterval: 2000,
     shouldRetryOnError: false,
   });
 
@@ -30,11 +30,11 @@ export const useProvinceById = (code: string | number) => {
     ["province", code],
     ([_, code]) => getProvinceById(code),
     {
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-      revalidateIfStale: true,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: false,
+      dedupingInterval: 60000,
 
-      dedupingInterval: 2000,
       shouldRetryOnError: false,
     }
   );
@@ -51,11 +51,11 @@ export const useWardsByProvince = (province_code?: number | null) => {
     province_code ? ["wardsbyProvince", province_code] : null,
     ([_, code]) => getWardsByProvince(code),
     {
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-      revalidateIfStale: true,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: false,
+      dedupingInterval: 60000,
 
-      dedupingInterval: 2000,
       shouldRetryOnError: false,
     }
   );
@@ -73,11 +73,11 @@ export const useWardById = (code: string | number) => {
     ["ward", code],
     ([_, code]) => getWardById(code),
     {
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-      revalidateIfStale: true,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: false,
+      dedupingInterval: 60000,
 
-      dedupingInterval: 2000,
       shouldRetryOnError: false,
     }
   );

@@ -15,7 +15,7 @@ export const useUserInfo = () => {
       revalidateOnReconnect: true,
       revalidateIfStale: true,
 
-      dedupingInterval: 2000,
+      dedupingInterval: 180000, // 3 minutes
       shouldRetryOnError: false,
     }
   );

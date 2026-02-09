@@ -109,7 +109,7 @@ export default function SearchPage() {
       min_price: 0,
       max_price: 50000000,
       min_area: 0,
-      max_area: 500,
+      max_area: 100,
       beds: undefined,
       amenities: [],
       sort_by: "DATE_DESC",
@@ -613,7 +613,7 @@ export default function SearchPage() {
                       <div className="flex items-center gap-3">
                         <div className="relative group">
                           <select
-                            className="appearance-none bg-transparent border-none text-sm text-text-secondary cursor-pointer hover:text-primary pr-6 outline-none"
+                            className="flex items-center gap-2 bg-white border border-input-border px-4 py-2 rounded-lg text-sm font-medium text-text-main hover:border-primary transition-colors outline-none appearance-none pr-10"
                             value={filters.sort_by}
                             onChange={(e) =>
                               setFilters({
