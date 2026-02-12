@@ -50,23 +50,40 @@ export const getPublicListings = async (params: {
   centerLat?: number;
   centerLong?: number;
   radius?: number;
+  minLat?: number;
+  maxLat?: number;
+  minLng?: number;
+  maxLng?: number;
+  include_markers?: boolean | string;
 }) => {
-  const { amenities, centerLat, centerLong, radius, ...rest } = params;
+  const { amenities, centerLat, centerLong, radius, minLat, maxLat, minLng, maxLng, include_markers, ...rest } = params;
   let url = `/api/listings?`;
   Object.entries(rest).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       url += `${key}=${value}&`;
     }
   });
+
   if (amenities && amenities.length > 0) {
     url += `amenities=${amenities.join(",")}&`;
   }
+
   if (centerLat !== undefined && centerLong !== undefined && radius !== undefined && radius >= 100) {
     url += `centerLat=${centerLat}&centerLong=${centerLong}&radius=${radius}&`;
   }
+
+  if (minLat !== undefined && maxLat !== undefined && minLng !== undefined && maxLng !== undefined) {
+    url += `minLat=${minLat}&maxLat=${maxLat}&minLng=${minLng}&maxLng=${maxLng}&`;
+  }
+
+  if (include_markers) {
+    url += `include_markers=${include_markers}&`;
+  }
+
   const res = await api.get(url.slice(0, -1));
   return res.data;
 };
+
 
 export const createListing = async (
   listingForm: createListingProps,

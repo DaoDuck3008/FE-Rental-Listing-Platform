@@ -26,11 +26,21 @@ interface Listing {
 
 interface MapViewProps {
   listings: Listing[];
+  markers?: Listing[];
+  center?: google.maps.LatLngLiteral;
+  zoom?: number;
+  mapResetKey?: number;
   onSearchRadiusChange?: (
     lat: number | undefined,
     lng: number | undefined,
     radius: number | undefined
   ) => void;
+  onBoundsChange?: (bounds: {
+    minLat: number;
+    maxLat: number;
+    minLng: number;
+    maxLng: number;
+  }) => void;
 }
 
 const containerStyle = {
@@ -47,7 +57,15 @@ const STEP = 100; // 100m
 const MIN = 0;
 const MAX = 10000; // 10km
 
-export default function MapView({ listings, onSearchRadiusChange }: MapViewProps) {
+export default function MapView({
+  listings,
+  markers,
+  center,
+  zoom,
+  mapResetKey,
+  onSearchRadiusChange,
+  onBoundsChange,
+}: MapViewProps) {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -55,7 +73,22 @@ export default function MapView({ listings, onSearchRadiusChange }: MapViewProps
 
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [mapZoom, setMapZoom] = useState(13);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  useEffect(() => {
+    if (center) {
+      setMapCenter(center);
+      if (map) map.panTo(center);
+    }
+  }, [center, map, mapResetKey]);
+
+  useEffect(() => {
+    if (zoom !== undefined) {
+      setMapZoom(zoom);
+      if (map) map.setZoom(zoom);
+    }
+  }, [zoom, map, mapResetKey]);
 
   // Radius Search States
   const [isRadiusActive, setIsRadiusActive] = useState(false);
@@ -64,7 +97,7 @@ export default function MapView({ listings, onSearchRadiusChange }: MapViewProps
   const [radius, setRadius] = useState([0]);
   const [showPopup, setShowPopup] = useState(false);
 
-  // Notify parent of search radius changes
+  // Cập nhật lng lat lên page cha khi thay đổi bán kính hoặc vị trí tìm kiếm
   useEffect(() => {
     if (onSearchRadiusChange) {
       if (isRadiusActive && searchCenter) {
@@ -75,21 +108,27 @@ export default function MapView({ listings, onSearchRadiusChange }: MapViewProps
     }
   }, [isRadiusActive, searchCenter, radius, onSearchRadiusChange]);
 
-  const listingsWithCoords = listings?.filter(
+  // Sử dụng biến markers nếu có, nếu không thì dùng tạm listings
+  const mapData = markers && markers.length > 0 ? markers : listings;
+  const listingsWithCoords = mapData?.filter(
     (listing) => listing.latitude && listing.longitude
   );
 
-  useEffect(() => {
-    if (listingsWithCoords && listingsWithCoords.length > 0) {
-      const firstListing = listingsWithCoords[0];
-      if (firstListing.latitude && firstListing.longitude) {
-        setMapCenter({
-          lat: firstListing.latitude,
-          lng: firstListing.longitude,
-        });
-      }
-    }
-  }, [listings]);
+  const handleMapIdle = () => {
+    if (!map || !onBoundsChange) return;
+    const bounds = map.getBounds();
+    if (!bounds) return;
+
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+
+    onBoundsChange({
+      minLat: sw.lat(),
+      maxLat: ne.lat(),
+      minLng: sw.lng(),
+      maxLng: ne.lng(),
+    });
+  };
 
   const toggleRadiusSearch = () => {
     if (!isRadiusActive) {
@@ -276,8 +315,9 @@ export default function MapView({ listings, onSearchRadiusChange }: MapViewProps
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
-        zoom={13}
+        zoom={mapZoom}
         onLoad={(map) => setMap(map)}
+        onIdle={handleMapIdle}
         options={{
           zoomControl: true,
           streetViewControl: false,
@@ -338,7 +378,7 @@ export default function MapView({ listings, onSearchRadiusChange }: MapViewProps
                 <Link
                   target="_blank"
                   href={`/listing-detail/${listing.id}`}
-                  className="absolute bottom-full mb-4 w-64 bg-white rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 z-50"
+                  className="absolute bottom-full mb-4 w-64 bg-white rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 z-50 transition-all"
                 >
                   <div
                     className="h-32 w-full bg-cover bg-center"
@@ -379,19 +419,20 @@ export default function MapView({ listings, onSearchRadiusChange }: MapViewProps
                 }
                 className={`${
                   selectedListing?.id === listing.id
-                    ? "bg-primary text-white ring-4 ring-white scale-110"
-                    : "bg-white hover:bg-primary hover:text-white text-text-main"
-                } font-bold text-sm px-3 py-1.5 rounded-full shadow-md cursor-pointer transition-all relative z-10 whitespace-nowrap`}
+                    ? "bg-blue-800 text-white ring-2 ring-white scale-110 z-20"
+                    : "bg-blue-600 hover:bg-blue-700 text-white z-10"
+                } font-bold text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg cursor-pointer transition-all relative whitespace-nowrap`}
               >
                 {formatPrice(listing.price)}
                 <div
                   className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 ${
                     selectedListing?.id === listing.id
-                      ? "bg-primary"
-                      : "bg-white"
-                  } rotate-45 transition-colors`}
+                      ? "bg-blue-800"
+                      : "bg-blue-600"
+                  } rotate-45 transition-colors group-hover:bg-blue-700`}
                 />
               </div>
+
             </div>
           </OverlayView>
         ))}
