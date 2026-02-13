@@ -1,12 +1,13 @@
-import { Bath, Bed, BookHeart, LandPlot } from "lucide-react";
+import { Bath, Bed, Heart, LandPlot } from "lucide-react";
 import { formatVietnamesePrice } from "@/utils/formatters";
 import Link from "next/link";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface ListingCardProps {
   id: string;
   title: string;
   imgUrl: string;
-  cost: string | number;
+  price: number | string;
   address: string;
   beds: number;
   baths: number;
@@ -18,13 +19,22 @@ export default function ListingCard({
   id,
   title,
   imgUrl,
-  cost,
+  price,
   address,
   beds,
   baths,
   area,
   status,
 }: ListingCardProps) {
+  const { favoriteIds, toggleFavorite } = useFavorites();
+  const isFavorite = favoriteIds.includes(id);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(id);
+  };
+
   return (
     <Link
       href={`/listing-detail/${id}`}
@@ -38,11 +48,18 @@ export default function ListingCard({
             alt={title}
           />
         </div>
-        <div className="absolute top-2.5 right-2.5">
-          <button className="bg-white/90 p-1.5 rounded-full text-slate-400 hover:text-red-500 transition-colors backdrop-blur-sm">
-            <span className="material-symbols-outlined text-lg block">
-              <BookHeart className="w-4 h-4" />
-            </span>
+        <div className="absolute top-2.5 right-2.5 z-20">
+          <button
+            onClick={handleFavoriteClick}
+            className={`p-1.5 rounded-full transition-all backdrop-blur-sm shadow-sm ${
+              isFavorite
+                ? "bg-red-50 text-red-500"
+                : "bg-white/90 text-slate-400 hover:text-red-500"
+            }`}
+          >
+            <Heart
+              className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`}
+            />
           </button>
         </div>
         {/* <div className="absolute top-2.5 left-2.5">
@@ -54,7 +71,7 @@ export default function ListingCard({
       <div className="p-4 flex flex-col gap-1.5">
         <div className="flex items-baseline justify-between">
           <h3 className="text-xl font-bold text-primary">
-            {formatVietnamesePrice(Number(cost))}
+            {formatVietnamesePrice(Number(price || 0))}
           </h3>
           <span className="text-[10px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded border border-green-100">
             Đã xác thực

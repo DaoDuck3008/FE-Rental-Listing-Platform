@@ -389,7 +389,7 @@ export default function SearchPage() {
                   id={item.id}
                   title={item.title}
                   imgUrl={item.images?.[0]?.image_url || "/placeholder.png"}
-                  cost={item.price.toLocaleString("vi-VN")}
+                  price={item.price}
                   address={item.address}
                   beds={item.bedrooms}
                   baths={item.bathrooms}

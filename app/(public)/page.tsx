@@ -15,6 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { formatVietnamesePrice } from "@/utils";
 
 export default function Home() {
   const [listings, setListings] = useState<any>([]);
@@ -183,9 +184,9 @@ export default function Home() {
                   key={listing.id}
                   id={listing.id}
                   title={listing.title}
-                  cost={listing.price.toLocaleString("vi-VN")}
+                  price={listing.price}
                   address={listing.address}
-                  imgUrl={listing.images[0].image_url ?? "./NoImage.png"}
+                  imgUrl={listing.images[0].image_url || "./NoImage.png"}
                   beds={listing.bedrooms}
                   baths={listing.bathrooms}
                   area={listing.area}

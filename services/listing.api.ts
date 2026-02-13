@@ -304,6 +304,10 @@ export const deleteListing = async (listingId: string) => {
   return api.delete(`/api/listings/${listingId}`);
 };
 
+export const toggleFavoriteListing = async (listingId: string) => {
+  return api.post(`/api/listings/${listingId}/favorite`);
+};
+
 export const getListingsForModeration = async ({
   limit,
   page,

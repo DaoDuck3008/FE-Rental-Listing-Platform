@@ -44,3 +44,12 @@ export const getPersonalInformationSWR = async () => {
     throw error;
   }
 };
+
+export const getMyFavorites = async (limit: number = 10, page: number = 1) => {
+  try {
+    const res = await api.get(`/api/users/favorites?limit=${limit}&page=${page}`);
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};

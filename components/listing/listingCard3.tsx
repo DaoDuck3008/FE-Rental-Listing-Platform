@@ -2,12 +2,13 @@ import React from "react";
 import { MapPin, Bed, Bath, Eye, Heart, Square } from "lucide-react";
 import Link from "next/link";
 import { formatVietnamesePrice, formatViews } from "@/utils/formatters";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface ListingCard3Props {
   id: string;
   title: string;
   address: string;
-  price: number;
+  price: number | string;
   bedrooms: number;
   bathrooms: number;
   area: number;
@@ -28,6 +29,15 @@ export default function ListingCard3({
   listing_type_name,
   image_url,
 }: ListingCard3Props) {
+  const { favoriteIds, toggleFavorite } = useFavorites();
+  const isFavorite = favoriteIds.includes(id);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(id);
+  };
+
   return (
     <div className="group flex flex-col sm:flex-row gap-3 rounded-xl mt-2 bg-white p-3 shadow-sm hover:shadow-lg border border-transparent hover:border-primary/30 transition-all cursor-pointer relative">
       <Link
@@ -87,7 +97,7 @@ export default function ListingCard3({
         <div className="flex items-end justify-between mt-3">
           <div className="flex gap-2">
             <p className="text-primary text-md font-extrabold leading-tight">
-              {formatVietnamesePrice(price)}
+              {formatVietnamesePrice(Number(price || 0))}
             </p>
             <div className="flex items-center gap-1 text-[10px] text-text-secondary">
               <Eye className="w-3 h-3" />
@@ -97,14 +107,17 @@ export default function ListingCard3({
 
           <button
             type="button"
-            className="p-2 rounded-full bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all pointer-events-auto shadow-sm"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            title="Add to favorites"
+            className={`p-2 rounded-full transition-all pointer-events-auto shadow-sm ${
+              isFavorite
+                ? "bg-red-50 text-red-500"
+                : "bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50"
+            }`}
+            onClick={handleFavoriteClick}
+            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
-            <Heart className="w-4 h-4" />
+            <Heart
+              className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`}
+            />
           </button>
         </div>
       </div>

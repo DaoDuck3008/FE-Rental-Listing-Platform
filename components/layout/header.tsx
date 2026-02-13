@@ -1,14 +1,19 @@
 "use client";
 
-import { Handshake, Menu } from "lucide-react";
+import { Handshake, Menu, Heart } from "lucide-react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth.store";
 import UserDropdown from "./userDropdown";
 import PostButton from "../common/postBtn";
+import { useState } from "react";
+import FavoriteDrawer from "./FavoriteDrawer";
+import { useFavorites } from "@/hooks/useFavorites";
 
 export default function AppHeader() {
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const [isFavoriteOpen, setIsFavoriteOpen] = useState(false);
+  const { favoriteIds } = useFavorites();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200  bg-background-light/95  backdrop-blur-sm">
@@ -45,7 +50,22 @@ export default function AppHeader() {
               Tìm môi giới
             </a>
           </nav>
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-4 items-center">
+            {user && (
+              <button
+                onClick={() => setIsFavoriteOpen(true)}
+                className="relative p-2 text-slate-600 hover:text-red-500 hover:bg-red-50 rounded-full transition-all group"
+                title="Danh sách yêu thích"
+              >
+                <Heart className="w-6 h-6 group-hover:fill-current transition-all" />
+                {favoriteIds.length > 0 && (
+                  <span className="absolute top-0 right-0 size-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                    {favoriteIds.length}
+                  </span>
+                )}
+              </button>
+            )}
+
             {!user ? (
               <Link
                 href="/login"
@@ -54,7 +74,7 @@ export default function AppHeader() {
                 Đăng nhập
               </Link>
             ) : (
-              // 🔹 ĐÃ ĐĂNG NHẬP
+             
               <UserDropdown user={user} onLogout={clearAuth} />
             )}
 
@@ -69,6 +89,11 @@ export default function AppHeader() {
           </button>
         </div>
       </div>
+
+      <FavoriteDrawer
+        isOpen={isFavoriteOpen}
+        onClose={() => setIsFavoriteOpen(false)}
+      />
     </header>
   );
 }
