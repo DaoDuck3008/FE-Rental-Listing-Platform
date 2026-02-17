@@ -345,3 +345,16 @@ export const approveEditDraft = async (id: string) => {
 export const rejectEditDraft = async (id: string, reason?: string) => {
   return api.post(`/api/admin/edit-drafts/${id}/reject`, { reason });
 };
+
+export const getAllListingsByAdmin = async (params: any) => {
+  const query = new URLSearchParams(params).toString();
+  return api.get(`/api/admin/listings?${query}`);
+};
+
+export const getListingStats = async () => {
+  return api.get("/api/admin/listings/stats");
+};
+
+export const hardDeleteListingAdmin = async (id: string) => {
+  return api.delete(`/api/admin/listings/${id}/hard`);
+};

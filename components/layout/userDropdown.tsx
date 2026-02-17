@@ -6,7 +6,7 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import { logout } from "@/services/auth.api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { ChevronDown, User } from "lucide-react";
+import { ChevronDown, User, ShieldCheck } from "lucide-react";
 import { mutate } from "swr";
 
 interface Props {
@@ -94,9 +94,18 @@ export default function UserDropdown({ user, onLogout }: Props) {
             Đăng tin
           </Link>
 
+          {user.role === "ADMIN" && (
+            <Link
+              href="/admin/dashboard"
+              className="block px-4 py-2 text-sm hover:bg-slate-100"
+            >
+              Quản trị hệ thống
+            </Link>
+          )}
+
           <button
             onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 border-t border-slate-50"
           >
             Đăng xuất
           </button>

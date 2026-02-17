@@ -8,7 +8,7 @@ export type ListingStatus =
   | "PUBLISHED"
   | "HIDDEN"
   | "EXPIRED"
-  | "DELETED";
+  | "SOFT_DELETED";
 
 /**
  * Map trạng thái từ tiếng Anh sang tiếng Việt
@@ -20,7 +20,8 @@ export const STATUS_MAP: Record<string, string> = {
   PUBLISHED: "Đã xuất bản",
   HIDDEN: "Đã ẩn",
   EXPIRED: "Đã hết hạn",
-  // DELETED không được map theo yêu cầu
+  REJECTED: "Đã bị từ chối",
+  SOFT_DELETED: "Đã bị xóa bởi chủ nhà",
 };
 
 /**
@@ -72,6 +73,18 @@ export const STATUS_STYLES: Record<string, StatusStyle> = {
     text: "text-red-700",
     border: "border-red-200",
     dot: "bg-red-500",
+  },
+  REJECTED: {
+    bg: "bg-red-100",
+    text: "text-red-700",
+    border: "border-red-200",
+    dot: "bg-red-500",
+  },
+  SOFT_DELETED: {
+    bg: "bg-rose-100",
+    text: "text-rose-700",
+    border: "border-rose-200",
+    dot: "bg-rose-500",
   },
 };
 

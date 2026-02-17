@@ -38,6 +38,8 @@ interface ListingTableBodyProps {
   views: string | number;
   status?: string;
   onRefresh?: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => Promise<void>;
 }
 
 export default function ListingTableBody({
@@ -50,6 +52,8 @@ export default function ListingTableBody({
   views,
   status,
   onRefresh,
+  isFavorite = false,
+  onToggleFavorite,
 }: ListingTableBodyProps) {
   const router = useRouter();
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
@@ -205,7 +209,7 @@ export default function ListingTableBody({
             />
           </div>
           <Link
-            href={`/profile/my-listing-detail/${id}`}
+            href={isFavorite ? `/listing-detail/${id}` : `/profile/my-listing-detail/${id}`}
             className="flex flex-col gap-1 cursor-pointer"
           >
             <p className="text-sm font-bold text-slate-900 line-clamp-2 group-hover:text-blue-500 transition-colors">
@@ -253,77 +257,89 @@ export default function ListingTableBody({
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center justify-end gap-2">
-          {status === "EXPIRED" ? (
+          {isFavorite ? (
             <button
-              className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
-              title="Làm mới tin"
-              onClick={() => handleRenewListing(id)}
+              className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              title="Bỏ yêu thích"
+              onClick={() => onToggleFavorite?.()}
             >
-              <RefreshCw size={15} />
+              <Trash2 size={15} />
             </button>
           ) : (
             <>
-              {status !== "DRAFT" &&
-                status !== "PENDING" &&
-                status !== "EDIT-DRAFT" &&
-                status !== "HIDDEN" && (
-                  <button
-                    className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
-                    title="Ẩn tin"
-                    onClick={() => handleHideListing(id)}
-                  >
-                    <span className="material-symbols-outlined text-[20px]">
-                      <EyeOff size={15} />
-                    </span>
-                  </button>
-                )}
-
-              {status === "HIDDEN" && (
+              {status === "EXPIRED" ? (
                 <button
                   className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
-                  title="Hiển thị tin"
-                  onClick={() => handleShowLisiting(id)}
+                  title="Làm mới tin"
+                  onClick={() => handleRenewListing(id)}
+                >
+                  <RefreshCw size={15} />
+                </button>
+              ) : (
+                <>
+                  {status !== "DRAFT" &&
+                    status !== "PENDING" &&
+                    status !== "EDIT-DRAFT" &&
+                    status !== "HIDDEN" && (
+                      <button
+                        className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
+                        title="Ẩn tin"
+                        onClick={() => handleHideListing(id)}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">
+                          <EyeOff size={15} />
+                        </span>
+                      </button>
+                    )}
+
+                  {status === "HIDDEN" && (
+                    <button
+                      className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
+                      title="Hiển thị tin"
+                      onClick={() => handleShowLisiting(id)}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">
+                        <Eye size={15} />
+                      </span>
+                    </button>
+                  )}
+                </>
+              )}
+
+              {status !== "PENDING" && status !== "DRAFT" && (
+                <Link
+                  className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                  title="Chỉnh sửa"
+                  href={`/listing-update/${id}`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
-                    <Eye size={15} />
+                    <Pen size={15} />
                   </span>
-                </button>
+                </Link>
               )}
+              {status === "DRAFT" && (
+                <Link
+                  className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                  title="Hoàn thiện bài đăng"
+                  href={`/listing-update-draft/${id}`}
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    <SquarePen size={15} />
+                  </span>
+                </Link>
+              )}
+
+              <button
+                className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                title="Xóa tin"
+                onClick={() => setOpenDeleteModal(true)}
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  <Trash2 size={15} />
+                </span>
+              </button>
             </>
           )}
-
-          {status !== "PENDING" && status !== "DRAFT" && (
-            <Link
-              className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-              title="Chỉnh sửa"
-              href={`/listing-update/${id}`}
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                <Pen size={15} />
-              </span>
-            </Link>
-          )}
-          {status === "DRAFT" && (
-            <Link
-              className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-              title="Hoàn thiện bài đăng"
-              href={`/listing-update-draft/${id}`}
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                <SquarePen size={15} />
-              </span>
-            </Link>
-          )}
-
-          <button
-            className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-            title="Xóa tin"
-            onClick={() => setOpenDeleteModal(true)}
-          >
-            <span className="material-symbols-outlined text-[20px]">
-              <Trash2 size={15} />
-            </span>
-          </button>
         </div>
         {openDeleteModal && (
           <ConfirmDeleteModal

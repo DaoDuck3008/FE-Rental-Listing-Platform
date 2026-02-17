@@ -28,20 +28,20 @@ export default function DashboardCard({
         <div
           className={`p-2 bg-${bgIconColor} rounded-lg text-${
             textIconColor || iconColor
-          } group-hover:bg-${iconColor} group-hover:text-white transition-colors`}
+          } group-hover:bg-${iconColor} group-hover:text-white transition-colors flex items-center justify-center`}
         >
-          <span className="material-symbols-outlined">
-            <Icon size={iconSize || 20} />
-          </span>
+          <Icon size={iconSize || 20} />
         </div>
       </div>
       <div className="flex items-end gap-2">
         <p className="text-text-main text-2xl lg:text-3xl font-extrabold">
           {value}
         </p>
-        <span className="text-[#078838] text-xs lg:text-sm font-bold pb-1 bg-green-50 px-2 py-0.5 rounded-full">
-          {description}
-        </span>
+        {description && (
+          <span className="text-[#078838] text-xs lg:text-sm font-bold pb-1 bg-green-50 px-2 py-0.5 rounded-full">
+            {description}
+          </span>
+        )}
       </div>
     </div>
   );
