@@ -87,7 +87,7 @@ export default function ListingTableBodyAdmin({
             />
           </div>
           <Link
-            href={`/admin/moderation/${id}`}
+            href={`/admin/listings/${id}`}
             className="flex flex-col gap-1 cursor-pointer"
           >
             <p className="text-sm font-bold text-slate-900 line-clamp-2 group-hover:text-blue-500 transition-colors">
@@ -130,15 +130,15 @@ export default function ListingTableBodyAdmin({
       <td className="px-6 py-4">
         <div className="flex items-center justify-end gap-2">
           <Link
-            href={`/admin/moderation/${id}`}
+            href={`/admin/listings/${id}`}
             className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
-            title="Xem chi tiết & Kiểm duyệt"
+            title="Xem chi tiết"
           >
             <Eye size={18} />
           </Link>
           
           <Link
-            href={`/listing-update/${id}`}
+            href={`/admin/listings/${id}/update`}
             className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition-colors"
             title="Sửa nội dung"
           >

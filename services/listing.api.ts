@@ -338,6 +338,11 @@ export const getListingForModerationDetail = async (id: string) => {
   return res.data;
 };
 
+export const getListingDetailAdmin = async (id: string) => {
+  const res = await api.get(`/api/admin/listings/${id}`);
+  return res.data;
+};
+
 export const approveEditDraft = async (id: string) => {
   return api.post(`/api/admin/edit-drafts/${id}/approve`);
 };
@@ -357,4 +362,35 @@ export const getListingStats = async () => {
 
 export const hardDeleteListingAdmin = async (id: string) => {
   return api.delete(`/api/admin/listings/${id}/hard`);
+};
+
+export const updateListingAdmin = async (
+  id: string,
+  listingForm: Partial<createListingProps>,
+  files: File[] | null,
+  coverImageIndex: number
+) => {
+  const formData = new FormData();
+
+  Object.entries(listingForm).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      formData.append(key, value.join(","));
+    } else if (value !== null && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
+
+  if (files) {
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+  }
+
+  formData.append("coverImageIndex", String(coverImageIndex));
+
+  return api.patch(`/api/admin/listings/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };

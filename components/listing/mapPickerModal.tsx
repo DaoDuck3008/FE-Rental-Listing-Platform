@@ -31,7 +31,9 @@ export default function MapPickerModal({
     lat: number;
     lng: number;
   } | null>(null);
-  const [center, setCenter] = useState<{ lat: number; lng: number }>(defaultCenter);
+  const [center, setCenter] = useState<{ lat: number; lng: number }>(
+    defaultCenter
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -61,10 +63,12 @@ export default function MapPickerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col animate-in fade-in zoom-in duration-200">
         <div className="px-6 py-4 border-b border-border-color flex items-center justify-between bg-gray-50">
-          <h3 className="text-xl font-bold text-text-main">Chọn vị trí chính xác trên bản đồ</h3>
+          <h3 className="text-xl font-bold text-text-main">
+            Chọn vị trí chính xác trên bản đồ
+          </h3>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-200 rounded-full transition-all active:scale-95"
@@ -91,13 +95,16 @@ export default function MapPickerModal({
                 draggable={true}
                 onDragEnd={(e) => {
                   if (e.latLng) {
-                    setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+                    setMarkerPosition({
+                      lat: e.latLng.lat(),
+                      lng: e.latLng.lng(),
+                    });
                   }
                 }}
               />
             )}
           </GoogleMap>
-          
+
           <div className="absolute top-4 left-4 right-4 pointer-events-none">
             <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-text-main pointer-events-auto inline-block border border-primary/20">
               Nhấp vào bản đồ để đặt vị trí hoặc kéo Marker để điều chỉnh.
