@@ -21,7 +21,6 @@ export default function DescriptionEditor({
   placeholder = "Nhập nội dung...",
   editorAttributes,
 }: Props) {
-  // Force re-render when selection changes so Toolbar updates
   const [, forceUpdate] = useState(0);
 
   const editor = useEditor({
@@ -44,7 +43,7 @@ export default function DescriptionEditor({
         placeholder: placeholder,
       }),
     ],
-    content: value || "", // Changed default empty content to empty string to let placeholder work
+    content: value || "",
     onUpdate({ editor }) {
       onChange(editor.getHTML());
     },

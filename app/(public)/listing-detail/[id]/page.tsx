@@ -28,9 +28,11 @@ import LoadingOverlay from "@/components/common/loadingOverlay";
 import Icon from "@/components/ui/icon";
 import BackButton from "@/components/common/backButton";
 import ListingViewMapModal from "@/components/listing/listingViewMapModal";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function ListingDetailPage() {
   const { id } = useParams();
+  const { user } = useAuthStore();
   const [listing, setListing] = useState<any>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -291,7 +293,7 @@ export default function ListingDetailPage() {
       <RecommendedListings />
 
       {/* Comments */}
-      <ListingComments userAvatar={listing.owner.avatar} />
+      <ListingComments listingId={listing.id} comments={listing.comments} user={user} />
 
       {/* Map Modal */}
       {listing.latitude && listing.longitude && (
