@@ -156,6 +156,11 @@ export const getListingDetail = async (id: string) => {
   return res.data;
 };
 
+export const getNearbyDestinations = async (id: string) => {
+  const res = await api.get(`/api/listings/${id}/nearby-destinations`);
+  return res.data;
+};
+
 export const getMyListingDetail = async (id: string) => {
   const res = await api.get(`/api/listings/my-listings/${id}`);
   return res.data;

@@ -29,6 +29,7 @@ import Icon from "@/components/ui/icon";
 import BackButton from "@/components/common/backButton";
 import ListingViewMapModal from "@/components/listing/listingViewMapModal";
 import { useAuthStore } from "@/store/auth.store";
+import NearbyDestinations from "@/components/listing/nearbyDestinations";
 
 export default function ListingDetailPage() {
   const { id } = useParams();
@@ -214,6 +215,9 @@ export default function ListingDetailPage() {
             </div>
             <p className="text-sm text-slate-500">Địa chỉ: {listing.address}</p>
           </div>
+
+          {/* Nearby Destinations */}
+          <NearbyDestinations listingId={listing.id} />
         </div>
 
         {/* LandLord Profile */}

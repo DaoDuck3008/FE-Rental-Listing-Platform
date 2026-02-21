@@ -17,6 +17,7 @@ import {
   Layers,
   Users,
   Home,
+  LandPlot,
 } from "lucide-react";
 import { logout } from "@/services/auth.api";
 import { toast } from "react-toastify";
@@ -79,6 +80,12 @@ export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
       href: "/admin/listing-types",
     },
     { label: "Role", icon: <Users size={18} />, href: "/admin/roles" },
+    { label: "User", icon: <User size={18} />, href: "/admin/users" },
+    {
+      label: "Destinations",
+      icon: <LandPlot size={18} />,
+      href: "/admin/destinations",
+    },
   ];
 
   return (
@@ -150,7 +157,7 @@ export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
             </button>
 
             <div
-              className={`ml-4 overflow-hidden transition-all duration-300 ease-in-out ${
+              className={`ml-4 overflow-x-hidden transition-all duration-300 ease-in-out ${
                 isDataDropdownOpen
                   ? "max-h-40 mt-2 opacity-100"
                   : "max-h-0 opacity-0"

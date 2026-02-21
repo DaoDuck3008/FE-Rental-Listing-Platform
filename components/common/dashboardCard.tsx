@@ -22,7 +22,9 @@ export default function DashboardCard({
   bgIconColor,
 }: DashboardCardProps) {
   return (
-    <div className="bg-white border border-input-border rounded-xl p-5 lg:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-3 group">
+    <div
+      className={`bg-white border border-input-border rounded-xl p-5 lg:p-6 shadow-sm hover:shadow-md  transition-shadow flex flex-col gap-3 group`}
+    >
       <div className="flex justify-between items-start">
         <p className="text-text-secondary text-sm font-semibold">{title}</p>
         <div
