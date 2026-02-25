@@ -18,6 +18,7 @@ import {
   Users,
   Home,
   LandPlot,
+  Cylinder,
 } from "lucide-react";
 import { logout } from "@/services/auth.api";
 import { toast } from "react-toastify";
@@ -73,7 +74,11 @@ export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
   ];
 
   const dataSubItems = [
-    { label: "Amenities", icon: <Home size={18} />, href: "/admin/amenities" },
+    {
+      label: "Tiện ích",
+      icon: <Cylinder size={18} />,
+      href: "/admin/amenities",
+    },
     {
       label: "Listing Type",
       icon: <Layers size={18} />,
