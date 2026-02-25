@@ -8,29 +8,46 @@ import Link from "next/link";
 import {
   createComment,
   deleteComment,
+  getCommentsByListingId,
   toggleLikeComment,
   updateComment,
 } from "@/services/comment.api";
 import { toast } from "react-toastify";
+import SkeletonLoader from "../common/skeletonLoader";
+
 
 interface ListingCommentsProps {
   listingId: string;
-  comments: any[];
   user: any;
 }
 
 export default function ListingComments({
   listingId,
-  comments,
   user,
 }: ListingCommentsProps) {
   const [commentContent, setCommentContent] = useState("");
-  const [localComments, setLocalComments] = useState<any[]>(comments || []);
+  const [localComments, setLocalComments] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setLocalComments(comments || []);
-  }, [comments]);
+    const fetchComments = async () => {
+      if (!listingId) return;
+      setIsLoading(true);
+      try {
+        const res = await getCommentsByListingId(listingId);
+        if (res.success) {
+          setLocalComments(res.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [listingId]);
 
   const handleSubmit = async () => {
     if (!commentContent.trim()) {
@@ -234,7 +251,9 @@ export default function ListingComments({
 
         {/* Comments List Section */}
         <div className="flex flex-col gap-8">
-          {localComments && localComments.length > 0 ? (
+          {isLoading ? (
+            <SkeletonLoader type="comment" count={3} />
+          ) : localComments && localComments.length > 0 ? (
             <>
               {localComments.map((item) => (
                 <CommentCard

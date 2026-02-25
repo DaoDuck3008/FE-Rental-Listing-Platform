@@ -11,6 +11,7 @@ import {
   Hotel, 
   Trees 
 } from "lucide-react";
+import SkeletonLoader from "../common/skeletonLoader";
 
 interface Destination {
   id: string;
@@ -67,18 +68,16 @@ export default function NearbyDestinations({ listingId }: { listingId: string })
 
   if (loading) {
     return (
-      <div className="mt-6 bg-green-50/50 border border-green-200/50 rounded-xl p-6 animate-pulse">
-        <div className="h-6 w-48 bg-green-200 rounded mb-4"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="size-8 rounded-full bg-green-200"></div>
-              <div className="flex-1">
-                <div className="h-4 w-3/4 bg-green-100 rounded mb-2"></div>
-                <div className="h-3 w-1/4 bg-green-50 rounded"></div>
-              </div>
-            </div>
-          ))}
+      <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <SkeletonLoader type="rect" className="size-10 rounded-full bg-green-100" />
+          <div className="space-y-2">
+            <SkeletonLoader type="text" className="w-48 bg-green-200" />
+            <SkeletonLoader type="text" className="w-32 bg-green-100 h-2" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+          <SkeletonLoader type="nearby" count={6} />
         </div>
       </div>
     );

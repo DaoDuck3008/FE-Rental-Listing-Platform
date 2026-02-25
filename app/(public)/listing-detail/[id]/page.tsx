@@ -30,6 +30,7 @@ import BackButton from "@/components/common/backButton";
 import ListingViewMapModal from "@/components/listing/listingViewMapModal";
 import { useAuthStore } from "@/store/auth.store";
 import NearbyDestinations from "@/components/listing/nearbyDestinations";
+import { useInView } from "react-intersection-observer";
 
 export default function ListingDetailPage() {
   const { id } = useParams();
@@ -38,6 +39,16 @@ export default function ListingDetailPage() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+
+  const { ref: nearbyRef, inView: nearbyInView } = useInView({
+    triggerOnce: true,
+    rootMargin: "200px 0px",
+  });
+
+  const { ref: commentsRef, inView: commentsInView } = useInView({
+    triggerOnce: true,
+    rootMargin: "200px 0px",
+  });
 
   useEffect(() => {
     const fetchListingDetail = async () => {
@@ -217,7 +228,13 @@ export default function ListingDetailPage() {
           </div>
 
           {/* Nearby Destinations */}
-          <NearbyDestinations listingId={listing.id} />
+          <div ref={nearbyRef}>
+            {nearbyInView ? (
+              <NearbyDestinations listingId={listing.id} />
+            ) : (
+              <div className="h-40" />
+            )}
+          </div>
         </div>
 
         {/* LandLord Profile */}
@@ -297,7 +314,13 @@ export default function ListingDetailPage() {
       <RecommendedListings />
 
       {/* Comments */}
-      <ListingComments listingId={listing.id} comments={listing.comments} user={user} />
+      <div ref={commentsRef}>
+        {commentsInView ? (
+          <ListingComments listingId={listing.id} user={user} />
+        ) : (
+          <div className="h-40" />
+        )}
+      </div>
 
       {/* Map Modal */}
       {listing.latitude && listing.longitude && (

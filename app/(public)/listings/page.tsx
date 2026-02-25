@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import ListingCard from "@/components/listing/listingCard";
-import FilterModal from "@/components/listing/FilterModal";
 import {
   Search,
   ChevronDown,
@@ -243,6 +242,29 @@ export default function SearchPage() {
                     ...filters,
                     min_price: values[0],
                     max_price: values[1],
+                  })
+                }
+              />
+            </div>
+
+            {/* Area Range */}
+            <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <p className="font-bold">Diện tích</p>
+                <span className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded-full">
+                  {filters.min_area} m² - {filters.max_area} m²
+                </span>
+              </div>
+              <RangeSlider
+                min={0}
+                max={100}
+                step={1}
+                values={[filters.min_area, filters.max_area]}
+                onChange={(values) =>
+                  setFilters({
+                    ...filters,
+                    min_area: values[0],
+                    max_area: values[1],
                   })
                 }
               />
