@@ -4,6 +4,7 @@ import "@/styles/global.css";
 import { ToastContainer } from "react-toastify";
 import AuthHydrator from "@/components/providers/authHydrator";
 import GoogleProvider from "@/components/providers/googleProvider";
+import ChatContainer from "@/components/chat/chatContainer";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <AuthHydrator>
           <GoogleProvider>
             <div className="min-h-screen">{children}</div>
+            <ChatContainer />
             <ToastContainer />
           </GoogleProvider>
         </AuthHydrator>

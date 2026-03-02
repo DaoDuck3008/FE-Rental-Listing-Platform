@@ -31,6 +31,9 @@ import ListingViewMapModal from "@/components/listing/listingViewMapModal";
 import { useAuthStore } from "@/store/auth.store";
 import NearbyDestinations from "@/components/listing/nearbyDestinations";
 import { useInView } from "react-intersection-observer";
+import { createChat } from "@/services/chat.api";
+import { useChatStore } from "@/store/chat.store";
+import { useRouter } from "next/navigation";
 
 export default function ListingDetailPage() {
   const { id } = useParams();
@@ -39,6 +42,10 @@ export default function ListingDetailPage() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const [isContacting, setIsContacting] = useState(false);
+
+  const { openChat } = useChatStore();
+  const router = useRouter();
 
   const { ref: nearbyRef, inView: nearbyInView } = useInView({
     triggerOnce: true,
@@ -77,6 +84,31 @@ export default function ListingDetailPage() {
 
     fetchListingDetail();
   }, [id]);
+
+  const handleContactHost = async () => {
+    if (!user) {
+      toast.info("Vui lòng đăng nhập để liên hệ với chủ nhà");
+      router.push("/login");
+      return;
+    }
+
+    if (user.id === listing.owner_id) {
+      toast.warning("Bạn không thể liên hệ với chính mình");
+      return;
+    }
+
+    try {
+      setIsContacting(true);
+      const res = await createChat(listing.owner_id);
+      if (res.success) {
+        openChat(res.data);
+      }
+    } catch (error) {
+      toast.error("Không thể tạo cuộc hội thoại");
+    } finally {
+      setIsContacting(false);
+    }
+  };
 
   if (isLoading) {
     return <LoadingOverlay />;
@@ -285,9 +317,13 @@ export default function ListingDetailPage() {
                 </div>
               </div>
               <div className="flex flex-col gap-3">
-                <button className="w-full bg-primary hover:bg-blue-600 text-white font-bold h-12 rounded-lg flex items-center justify-center gap-2 transition-all">
+                <button 
+                  onClick={handleContactHost}
+                  disabled={isContacting}
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-bold h-12 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                >
                   <Mail size={20} />
-                  Liên hệ chủ nhà
+                  {isContacting ? "Đang kết nối..." : "Liên hệ chủ nhà"}
                 </button>
                 <button className="w-full bg-transparent border border-primary text-primary hover:bg-primary/10 font-bold h-12 rounded-lg flex items-center justify-center gap-2 transition-all">
                   <CalendarDays size={20} />

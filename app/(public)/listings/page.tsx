@@ -117,7 +117,7 @@ export default function SearchPage() {
   ];
 
   return (
-    <main className="flex-1 flex flex-col w-full max-w-360 mx-auto px-4 lg:px-10 py-6">
+    <main className="flex-1 flex flex-col w-full max-w-500 mx-auto px-4 lg:px-10 py-6">
       <div className="flex flex-col lg:flex-row gap-8 items-start h-full relative">
         {/* Sidebar for Desktop / Filter Drawer for Mobile */}
         <aside
@@ -404,7 +404,7 @@ export default function SearchPage() {
               <p className="text-slate-500">Đang tìm kiếm...</p>
             </div>
           ) : listings && listings.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-6">
               {listings.map((item: any) => (
                 <ListingCard
                   key={item.id}
