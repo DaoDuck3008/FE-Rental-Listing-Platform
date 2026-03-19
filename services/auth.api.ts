@@ -71,3 +71,34 @@ export const googleLogin = async (token: string) => {
     throw error;
   }
 };
+
+export const verifyEmail = async (email: string, token: string) => {
+  try {
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("token", token);
+
+    return api.post("/api/auth/verify-email", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const resendVerifyEmail = async (email: string) => {
+  try {
+    const formData = new FormData();
+    formData.append("email", email);
+
+    return api.post("/api/auth/resend-verify-email", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  } catch (error: any) {
+    throw error;
+  }
+};

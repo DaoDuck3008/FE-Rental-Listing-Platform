@@ -10,6 +10,7 @@ import {
   Lock,
   Mail,
   Phone,
+  RefreshCw,
   RotateCcwKeyIcon,
   User,
   VenusAndMarsIcon,
@@ -48,6 +49,8 @@ export default function RegisterPage() {
     confirm_password: "",
   });
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -60,6 +63,7 @@ export default function RegisterPage() {
   };
 
   const handleRegister = async () => {
+    setLoading(true);
     try {
       // validate;
       if (!form.full_name.trim()) {
@@ -77,6 +81,12 @@ export default function RegisterPage() {
         return;
       }
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email)) {
+        toast.warning("Định dạng email không hợp lệ");
+        return;
+      }
+
       if (!form.password) {
         toast.warning("Mật khẩu không được để trống");
         return;
@@ -89,13 +99,23 @@ export default function RegisterPage() {
 
       const result = await register(form);
       if (result.status === 201) {
-        toast.success("Đăng kí tài khoản thành công!");
-        router.push(`/login?redirect=${encodeURIComponent(redirect)}`);
+        toast.success(result.data.message);
+
+        // Nếu cần verify email thì chuyển sang trang verify email
+        if (result.data.isVerifyRequired) {
+          router.push(
+            `/verify-email?email=${encodeURIComponent(form.email)}&redirect=${encodeURIComponent(redirect)}`
+          );
+        } else {
+          router.push(`/login?redirect=${encodeURIComponent(redirect)}`);
+        }
         return;
       }
     } catch (error: any) {
       handleError(error, "Có lỗi xảy ra!");
       return;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -337,13 +357,18 @@ export default function RegisterPage() {
               </div>
             </div>
             <button
-              className="w-full flex items-center justify-center cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-lg transition-colors shadow-md shadow-blue-500/20 mt-2"
-              onClick={() => handleRegister()}
+              onClick={handleRegister}
+              disabled={loading}
+              className="w-full flex items-center justify-center cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-lg transition-colors shadow-md shadow-blue-500/20 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <span className="truncate">Đăng ký tài khoản</span>
-              <span className="material-symbols-outlined ml-2 text-sm">
-                <ArrowRight />
-              </span>
+              {loading ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <span>Đăng ký tài khoản</span>
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </>
+              )}
             </button>
             <p className="text-xs text-center text-slate-400 mt-4 leading-relaxed px-4">
               Bằng việc đăng ký, bạn đồng ý với

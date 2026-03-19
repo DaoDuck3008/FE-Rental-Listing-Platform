@@ -1,6 +1,6 @@
 "use client";
 import { login } from "@/services/auth.api";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -20,8 +20,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       // validate
       if (!email) {
@@ -42,8 +44,18 @@ export default function LoginPage() {
         return;
       }
     } catch (error: any) {
+      if (error.response?.data?.error === "USER_NOT_VERIFIED") {
+        const unverifiedEmail = error.response.data.data?.email || email;
+        toast.info("Tài khoản chưa xác thực. Đang chuyển hướng đến trang xác thực...");
+        setTimeout(() => {
+          router.push(`/verify-email?email=${encodeURIComponent(unverifiedEmail)}&redirect=${encodeURIComponent(redirect)}`);
+        }, 2000);
+        return;
+      }
       handleError(error, "Đăng nhập thất bại");
       return;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,9 +158,14 @@ export default function LoginPage() {
               </div>
               <button
                 onClick={handleLogin}
-                className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                disabled={loading}
+                className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <span>Đăng nhập</span>
+                {loading ? (
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                ) : (
+                  <span>Đăng nhập</span>
+                )}
               </button>
             </div>
             <div className="relative flex py-6 items-center">

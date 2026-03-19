@@ -31,7 +31,7 @@ interface User {
     code: string;
     name: string;
   };
-  is_active: boolean;
+  is_locked: boolean;
   avatar?: string;
   createdAt: string;
 }
@@ -328,7 +328,7 @@ export default function AdminUserManagementPage() {
                       email={user.email}
                       phoneNumber={user.phone_number}
                       roleCode={user.role.code}
-                      isActive={user.is_active}
+                      isActive={user.is_locked}
                       avatar={user.avatar}
                       createdAt={user.createdAt}
                       roles={roles}

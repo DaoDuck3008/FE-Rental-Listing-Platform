@@ -40,7 +40,7 @@ interface UserDetail {
   phone_number?: string;
   gender?: string;
   avatar?: string;
-  is_active: boolean;
+  is_locked: boolean;
   createdAt: string;
   role: {
     code: string;
@@ -106,9 +106,9 @@ export default function AdminUserDetailPage() {
       setActionLoading(true);
       await toggleUserActiveByAdmin(user.id);
       toast.success(
-        user.is_active
-          ? "Đã khóa tài khoản người dùng"
-          : "Đã mở khóa tài khoản người dùng"
+        user.is_locked
+          ? "Đã mở khóa tài khoản người dùng"
+          : "Đã khóa tài khoản người dùng"
       );
       fetchUserDetail();
     } catch (error: any) {
@@ -175,13 +175,13 @@ export default function AdminUserDetailPage() {
              <button
               onClick={() => setShowStatusModal(true)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
-                user.is_active
+                user.is_locked
                   ? "bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100"
                   : "bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100"
               }`}
             >
-              {user.is_active ? <Lock size={18} /> : <Unlock size={18} />}
-              {user.is_active ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+              {user.is_locked ? <Unlock size={18} /> : <Lock size={18} />}
+              {user.is_locked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
             </button>
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function AdminUserDetailPage() {
           {/* Avatar & Main Status */}
           <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col items-center justify-center relative overflow-hidden">
              {/* Background Decoration */}
-             <div className={`absolute top-0 inset-x-0 h-24 ${user.is_active ? 'bg-blue-500/5' : 'bg-rose-500/5'}`}></div>
+             <div className={`absolute top-0 inset-x-0 h-24 ${user.is_locked ? 'bg-blue-500/5' : 'bg-rose-500/5'}`}></div>
              
              <div className="relative mt-4">
                 <div className="w-28 h-28 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden relative z-10">
@@ -203,14 +203,14 @@ export default function AdminUserDetailPage() {
                     </div>
                   )}
                 </div>
-                <div className={`absolute bottom-1 right-1 w-6 h-6 rounded-full border-4 border-white z-20 shadow-sm ${user.is_active ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+                <div className={`absolute bottom-1 right-1 w-6 h-6 rounded-full border-4 border-white z-20 shadow-sm ${user.is_locked ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
              </div>
 
              <h2 className="text-xl font-bold text-slate-900 mt-4 mb-1">{user.full_name}</h2>
              <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
-               user.is_active ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'
+               user.is_locked ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
              }`}>
-               {user.is_active ? 'Đang hoạt động' : 'Đã bị khóa'}
+               {user.is_locked ? 'Đã bị khóa' : 'Đang hoạt động'}
              </span>
           </div>
 
@@ -416,10 +416,10 @@ export default function AdminUserDetailPage() {
 
       {showStatusModal && (
         <WarningModal
-          title={user.is_active ? "Khóa tài khoản" : "Mở khóa tài khoản"}
-          message={`Bạn có chắc chắn muốn ${user.is_active ? 'khóa' : 'mở khóa'} tài khoản người dùng này? ${user.is_active ? 'Người dùng sẽ không thể đăng nhập cho đến khi được mở khóa lại.' : ''}`}
+          title={user.is_locked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+          message={`Bạn có chắc chắn muốn ${user.is_locked ? 'mở khóa' : 'khóa'} tài khoản người dùng này? ${!user.is_locked ? 'Người dùng sẽ không thể đăng nhập cho đến khi được mở khóa lại.' : ''}`}
           closeLabel="Quay lại"
-          submitLabel={user.is_active ? "Xác nhận Khóa" : "Xác nhận Mở"}
+          submitLabel={user.is_locked ? "Xác nhận Mở" : "Xác nhận Khóa"}
           OnClose={() => setShowStatusModal(false)}
           OnSubmit={handleToggleStatus}
         />

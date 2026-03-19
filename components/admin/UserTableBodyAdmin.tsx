@@ -56,8 +56,8 @@ export default function UserTableBodyAdmin({
       await toggleUserActiveByAdmin(id);
       toast.success(
         isActive
-          ? "Đã khóa tài khoản người dùng"
-          : "Đã mở khóa tài khoản người dùng"
+          ? "Đã mở khóa tài khoản người dùng"
+          : "Đã khóa tài khoản người dùng"
       );
       if (onRefresh) onRefresh();
     } catch (error: any) {
@@ -161,17 +161,17 @@ export default function UserTableBodyAdmin({
         <button
           onClick={() => setShowStatusModal(true)}
           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
-            isActive
+            !isActive
               ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
               : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
           }`}
         >
           <span
             className={`w-2 h-2 rounded-full ${
-              isActive ? "bg-emerald-500" : "bg-red-500"
+              !isActive ? "bg-emerald-500" : "bg-red-500"
             }`}
           ></span>
-          {isActive ? "Hoạt động" : "Bị khóa"}
+          {!isActive ? "Hoạt động" : "Bị khóa"}
         </button>
       </td>
       <td className="px-6 py-4">
@@ -194,13 +194,13 @@ export default function UserTableBodyAdmin({
           <button
             onClick={() => setShowStatusModal(true)}
             className={`p-2 rounded-lg transition-colors ${
-              isActive
+              !isActive
                 ? "text-slate-400 hover:text-red-500 hover:bg-red-50"
                 : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50"
             }`}
-            title={isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+            title={!isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
           >
-            {isActive ? <Lock size={18} /> : <Unlock size={18} />}
+            {!isActive ? <Lock size={18} /> : <Unlock size={18} />}
           </button>
         </div>
       </td>
@@ -220,16 +220,16 @@ export default function UserTableBodyAdmin({
 
       {showStatusModal && (
         <WarningModal
-          title={isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+          title={isActive ? "Mở khóa tài khoản" : "Khóa tài khoản"}
           message={`Bạn có chắc chắn muốn ${
-            isActive ? "khóa" : "mở khóa"
+            isActive ? "mở khóa" : "khóa"
           } tài khoản của ${fullName}? ${
-            isActive
+            !isActive
               ? "Người dùng này sẽ không thể đăng nhập vào hệ thống!"
               : "Người dùng sẽ có thể truy cập lại hệ thống bình thường."
           }`}
           closeLabel="Hủy"
-          submitLabel={isActive ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+          submitLabel={isActive ? "Mở khóa" : "Khóa tài khoản"}
           OnClose={() => setShowStatusModal(false)}
           OnSubmit={handleToggleStatus}
         />
