@@ -90,12 +90,20 @@ export default function AppHeader() {
             {user && <NotificationBell />}
 
             {!user ? (
-              <Link
-                href={`/login?redirect=${pathname}`}
-                className="flex items-center justify-center rounded-lg h-10 px-4 bg-slate-200 hover:bg-slate-300 text-slate-900 text-sm font-bold transition-colors"
-              >
-                Đăng nhập
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/login?redirect=${pathname}`}
+                  className="flex items-center justify-center rounded-lg h-10 px-4 bg-slate-200 hover:bg-slate-300 text-slate-900 text-sm font-bold transition-colors"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  href={`/register?redirect=${pathname}`}
+                  className="flex items-center justify-center rounded-lg h-10 px-4 bg-slate-200 hover:bg-slate-300 text-slate-900 text-sm font-bold transition-colors"
+                >
+                  Đăng ký
+                </Link>
+              </div>
             ) : (
               <UserDropdown user={user} onLogout={clearAuth} />
             )}
@@ -243,7 +251,6 @@ export default function AppHeader() {
                       onClick={() => setIsMenuOpen(false)}
                       className="flex items-center justify-center gap-2 w-full h-14 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-900/10 transition-all uppercase tracking-widest text-sm"
                     >
-                    
                       Quản trị hệ thống
                     </Link>
                   )}

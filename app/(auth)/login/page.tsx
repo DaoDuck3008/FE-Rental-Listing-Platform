@@ -151,7 +151,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   className="text-blue-500 text-sm font-semibold hover:underline decoration-2 underline-offset-2"
-                  href="#"
+                  href="/forgot-password"
                 >
                   Quên mật khẩu?
                 </Link>

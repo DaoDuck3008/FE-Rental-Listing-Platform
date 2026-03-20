@@ -18,9 +18,11 @@ import {
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import ChangePasswordModal from "@/components/user/ChangePasswordModal";
 
 export default function PersonalInformationPage() {
   const { userInfo, isLoading } = useUserInfo();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -202,11 +204,20 @@ export default function PersonalInformationPage() {
               Bạn nên đổi mật khẩu định kỳ để bảo vệ tài khoản tốt hơn.
             </p>
           </div>
-          <button className="flex items-center justify-center h-10 px-5 bg-transparent border border-input-border hover:bg-slate-50 text-slate-900 rounded-lg text-sm font-bold transition-colors">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center h-10 px-5 bg-transparent border border-input-border hover:bg-slate-50 text-slate-900 rounded-lg text-sm font-bold transition-colors"
+          >
             Đổi mật khẩu
           </button>
         </div>
       </section>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }

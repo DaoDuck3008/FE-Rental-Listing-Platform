@@ -102,3 +102,53 @@ export const resendVerifyEmail = async (email: string) => {
     throw error;
   }
 };
+
+export const changePassword = async (data: any) => {
+  try {
+    const formData = new FormData();
+    formData.append("oldPassword", data.oldPassword);
+    formData.append("newPassword", data.newPassword);
+    formData.append("confirmPassword", data.confirmPassword);
+
+    return api.post("/api/auth/change-password", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const forgotPassword = async (email: string) => {
+  try {
+    const formData = new FormData();
+    formData.append("email", email);
+
+    return api.post("/api/auth/forgot-password", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const resetPassword = async (data: any) => {
+  try {
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("otp", data.otp);
+    formData.append("newPassword", data.newPassword);
+    formData.append("confirmPassword", data.confirmPassword);
+
+    return api.post("/api/auth/reset-password", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  } catch (error: any) {
+    throw error;
+  }
+};
