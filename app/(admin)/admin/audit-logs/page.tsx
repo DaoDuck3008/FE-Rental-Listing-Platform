@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { getAuditLogs } from "@/services/auditLog.api";
 import { Search, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "react-toastify";
-import Link from "next/link";
+import Avatar from "@/components/common/avatar";
 
 interface AuditLog {
   id: string;
@@ -180,7 +180,9 @@ export default function AuditLogsPage() {
                   logs.map((log) => (
                     <tr
                       key={log.id}
-                      onClick={() => window.location.href = `/admin/audit-logs/${log.id}`}
+                      onClick={() =>
+                        (window.location.href = `/admin/audit-logs/${log.id}`)
+                      }
                       className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group"
                     >
                       <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap group-hover:text-blue-600 transition-colors">
@@ -190,10 +192,9 @@ export default function AuditLogsPage() {
                         <div className="flex items-center gap-3">
                           {log.user ? (
                             <>
-                              <img
-                                src={log.user.avatar || "/placeholder.png"}
-                                alt="avatar"
-                                className="w-8 h-8 rounded-full object-cover"
+                              <Avatar
+                                avatar={log.user.avatar}
+                                name={log.user.full_name || "U"}
                               />
                               <div className="flex flex-col">
                                 <span className="text-sm font-semibold text-slate-800">
@@ -222,7 +223,7 @@ export default function AuditLogsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                         <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-xs">
+                        <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-xs">
                           {log.ip_address}
                         </span>
                       </td>
