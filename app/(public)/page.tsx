@@ -11,37 +11,93 @@ import {
   ShieldCheck,
   BanknoteX,
   Clock,
+  Sparkles,
+  Flame,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatVietnamesePrice } from "@/utils";
+import { useListingTypes } from "@/hooks/useListing";
 
 export default function Home() {
-  const [listings, setListings] = useState<any>([]);
+  const [newestListings, setNewestListings] = useState<any>([]);
+  const [featuredListings, setFeaturedListings] = useState<any>([]);
+  const [hanoiListings, setHanoiListings] = useState<any>([]);
+  const [keyword, setKeyword] = useState("");
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number } | null>(null);
+  const [typeCode, setTypeCode] = useState<string>("");
+  const router = useRouter();
+  const { listingTypes } = useListingTypes();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === 0 ? 1 : 0));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const priceOptions = [
+    { label: "Tất cả mức giá", value: null },
+    { label: "Dưới 1 triệu", value: { min: 0, max: 1000000 } },
+    { label: "1 - 3 triệu", value: { min: 1000000, max: 3000000 } },
+    { label: "3 - 5 triệu", value: { min: 3000000, max: 5000000 } },
+    { label: "5 - 10 triệu", value: { min: 5000000, max: 10000000 } },
+    { label: "Trên 10 triệu", value: { min: 10000000, max: 1000000000 } },
+  ];
+
+  const typeOptions = [
+    { label: "Tất cả loại hình", value: "" },
+    ...(listingTypes?.map((t: any) => ({ label: t.name, value: t.code })) || []),
+  ];
 
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const result = await getPublicListings({
-          page: 1,
-          limit: 3,
-          sort_by: "DATE_DESC",
-        });
-        setListings(result.data);
+        const [newestRes, featuredRes, hanoiRes] = await Promise.all([
+          getPublicListings({
+            page: 1,
+            limit: 6,
+            sort_by: "DATE_DESC",
+          }),
+          getPublicListings({
+            page: 1,
+            limit: 6,
+            sort_by: "VIEW_DESC",
+          }),
+          getPublicListings({
+            page: 1,
+            limit: 6,
+            province_code: 1,
+            sort_by: "DATE_DESC",
+          }),
+        ]);
+        setNewestListings(newestRes.data);
+        setFeaturedListings(featuredRes.data);
+        setHanoiListings(hanoiRes.data);
       } catch (error: any) {
-        const res = error.response.data;
-        if (!res) {
-          toast.error("Lỗi không xác định. Vui lòng thử lại sau.");
-          return;
-        }
-        toast.error(res.message || "Đã có lỗi xảy ra. Vui lòng thử lại sau.");
-        return;
+        toast.error("Đã có lỗi xảy ra khi tải dữ liệu.");
       }
     };
 
     fetchListings();
   }, []);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (keyword) params.append("keyword", keyword);
+    if (priceRange) {
+      params.append("min_price", priceRange.min.toString());
+      params.append("max_price", priceRange.max.toString());
+    }
+    if (typeCode) params.append("listing_type_code", typeCode);
+    router.push(`/listings?${params.toString()}`);
+  };
 
   return (
     <>
@@ -78,25 +134,66 @@ export default function Home() {
                     className="w-full bg-transparent border-transparent online-none focus:outline-none text-slate-500  placeholder-slate-400 text-base font-medium p-0"
                     placeholder="Thành phố, Mã bưu điện, hoặc Khu vực"
                     type="text"
+                    value={keyword}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSearch();
+                    }}
+                    onChange={(e) => setKeyword(e.target.value)}
                   />
                 </div>
                 <div className="hidden md:flex items-center gap-2 px-4">
                   <div className="relative group">
-                    <Dropdown title="Giá" />
+                    <Dropdown
+                      title="Giá"
+                      options={priceOptions}
+                      value={priceRange}
+                      onChange={setPriceRange}
+                    />
                   </div>
                   <div className="relative group">
-                    <Dropdown title="Loại" />
+                    <Dropdown
+                      title="Loại"
+                      options={typeOptions}
+                      value={typeCode}
+                      onChange={setTypeCode}
+                    />
                   </div>
                 </div>
                 <div className="flex md:hidden gap-2 pb-2">
-                  <select className="flex-1 bg-slate-50  border-none rounded-lg text-sm p-2 text-slate-700 ">
-                    <option>Khoảng giá</option>
+                  <select
+                    className="flex-1 bg-slate-50  border-none rounded-lg text-sm p-2 text-slate-700 "
+                    value={
+                      priceRange
+                        ? JSON.stringify(priceRange)
+                        : JSON.stringify(null)
+                    }
+                    onChange={(e) => setPriceRange(JSON.parse(e.target.value))}
+                  >
+                    {priceOptions.map((opt) => (
+                      <option
+                        key={opt.label}
+                        value={JSON.stringify(opt.value)}
+                      >
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
-                  <select className="flex-1 bg-slate-50  border-none rounded-lg text-sm p-2 text-slate-700 ">
-                    <option>Loại bất động sản</option>
+                  <select
+                    className="flex-1 bg-slate-50  border-none rounded-lg text-sm p-2 text-slate-700 "
+                    value={typeCode}
+                    onChange={(e) => setTypeCode(e.target.value)}
+                  >
+                    {typeOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold h-12 md:h-12 px-8 rounded-xl transition-all shadow-lg shadow-blue-500/20 w-full md:w-auto flex items-center justify-center gap-2">
+                <button
+                  onClick={handleSearch}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold h-12 md:h-12 px-8 rounded-xl transition-all shadow-lg shadow-blue-500/20 w-full md:w-auto flex items-center justify-center gap-2"
+                >
                   Tìm kiếm
                 </button>
               </div>
@@ -111,63 +208,43 @@ export default function Home() {
               Địa điểm phổ biến
             </h3>
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-              <a
-                className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50  transition-colors group"
-                href="#"
-              >
-                <span className="font-semibold text-sm text-slate-700  group-hover:text-primary">
-                  TP. Hồ Chí Minh
-                </span>
-              </a>
-              <a
-                className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50  transition-colors group"
-                href="#"
-              >
-                <span className="font-semibold text-sm text-slate-700  group-hover:text-primary">
-                  Hà Nội
-                </span>
-              </a>
-              <a
-                className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50  transition-colors group"
-                href="#"
-              >
-                <span className="font-semibold text-sm text-slate-700  group-hover:text-primary">
-                  Đà Nẵng
-                </span>
-              </a>
-              <a
-                className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50 transition-colors group"
-                href="#"
-              >
-                <span className="font-semibold text-sm text-slate-700  group-hover:text-primary">
-                  Nha Trang
-                </span>
-              </a>
-              <a
-                className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50  transition-colors group"
-                href="#"
-              >
-                <span className="font-semibold text-sm text-slate-700 group-hover:text-primary">
-                  Cần Thơ
-                </span>
-              </a>
+              {[
+                "TP. Hồ Chí Minh",
+                "Hà Nội",
+                "Đà Nẵng",
+                "Nha Trang",
+                "Cần Thơ",
+              ].map((city) => (
+                <Link
+                  key={city}
+                  className="shrink-0 flex items-center gap-3 p-2 pr-6 rounded-full bg-slate-50  border border-slate-200  hover:border-primary/50  transition-colors group text-slate-700 hover:text-primary font-semibold text-sm"
+                  href={`/listings?keyword=${encodeURIComponent(city)}`}
+                >
+                  {city}
+                </Link>
+              ))}
             </div>
           </div>
         </section>
 
         {/* Third section: Newest listings */}
-        <section className="py-16 max-w-7xl mx-auto px-5 md:px-10">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-900 ">
-                Tin đăng mới nhất
-              </h2>
-              <p className="text-slate-500 ">
-                Những bất động sản mới được thêm hôm nay trong khu vực của bạn.
-              </p>
+        <section className="py-5 max-w-7xl mx-auto px-5 md:px-10">
+          <div className="flex items-end justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-2xl text-blue-600">
+                <Sparkles className="w-8 h-8" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-slate-900 ">
+                  Tin đăng mới nhất
+                </h2>
+                <p className="text-slate-500 ">
+                  Những bất động sản mới được thêm hôm nay trong khu vực của bạn.
+                </p>
+              </div>
             </div>
             <Link
-              className="hidden md:flex items-center text-primary font-bold hover:underline"
+              className="hidden md:flex items-center text-primary font-bold hover:underline bg-slate-50 px-4 py-2 rounded-full border border-slate-100 transition-colors"
               href="/listings"
             >
               Xem tất cả
@@ -176,31 +253,227 @@ export default function Home() {
               </span>
             </Link>
           </div>
-          {/* 3 newest listings */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings && listings.length > 0 ? (
-              listings.map((listing: any) => (
-                <ListingCard
-                  key={listing.id}
-                  id={listing.id}
-                  title={listing.title}
-                  price={listing.price}
-                  address={listing.address}
-                  imgUrl={listing.images[0].image_url || "./NoImage.png"}
-                  beds={listing.bedrooms}
-                  baths={listing.bathrooms}
-                  area={listing.area}
-                  status={listing.status}
-                />
-              ))
-            ) : (
-              <p>Không có tin đăng nào để hiển thị.</p>
-            )}
+          {/* Slider Container */}
+          <div className="relative group pb-4">
+            <div className="overflow-hidden relative">
+              <div
+                className="flex transition-transform duration-1000 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {[0, 1].map((slideIdx) => (
+                  <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {newestListings && newestListings.length > 0 ? (
+                      newestListings.slice(slideIdx * 3, (slideIdx + 1) * 3).map((listing: any) => (
+                        <ListingCard
+                          key={listing.id}
+                          id={listing.id}
+                          title={listing.title}
+                          price={listing.price}
+                          address={listing.address}
+                          imgUrl={listing.images[0].image_url || "./NoImage.png"}
+                          beds={listing.bedrooms}
+                          baths={listing.bathrooms}
+                          area={listing.area}
+                          status={listing.status}
+                        />
+                      ))
+                    ) : (
+                      <p className="py-10 text-center col-span-full">Không có tin đăng nào để hiển thị.</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Manual Controls */}
+            <button
+              onClick={() => setCurrentSlide((prev) => (prev === 0 ? 1 : 0))}
+              className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-blue-500 hover:border-blue-500 transition-all opacity-0 group-hover:opacity-100 hidden md:block z-20"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button
+              onClick={() => setCurrentSlide((prev) => (prev === 0 ? 1 : 0))}
+              className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-blue-500 hover:border-blue-500 transition-all opacity-0 group-hover:opacity-100 hidden md:block z-20"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="flex justify-center gap-2 mt-6">
+              <div onClick={() => setCurrentSlide(0)} className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${currentSlide === 0 ? "w-8 bg-blue-500" : "w-2 bg-slate-300"}`} />
+              <div onClick={() => setCurrentSlide(1)} className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${currentSlide === 1 ? "w-8 bg-blue-500" : "w-2 bg-slate-300"}`} />
+            </div>
           </div>
           <div className="mt-8 flex justify-center md:hidden">
-            <button className="w-full py-3 border border-slate-300  rounded-lg text-slate-900  font-bold hover:bg-slate-50 ">
+            <Link
+              href="/listings?sort_by=DATE_DESC"
+              className="w-full py-3 border border-slate-300 flex justify-center rounded-lg text-slate-900  font-bold hover:bg-slate-50 "
+            >
               Xem tất cả tin đăng
-            </button>
+            </Link>
+          </div>
+        </section>
+
+        <section className="py-5 bg-slate-50/50">
+          <div className="max-w-7xl mx-auto px-5 md:px-10">
+            <div className="flex items-end justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-orange-100 rounded-2xl text-orange-600">
+                  <Flame className="w-8 h-8" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-slate-900 ">
+                    Tin đăng nổi bật
+                  </h2>
+                  <p className="text-slate-500 ">
+                    Những bất động sản được xem nhiều nhất.
+                  </p>
+                </div>
+              </div>
+              <Link
+                className="hidden md:flex items-center text-primary font-bold hover:underline bg-white px-4 py-2 rounded-full border border-slate-100 transition-colors"
+                href="/listings?sort_by=VIEW_DESC"
+              >
+                Xem tất cả
+                <span className="material-symbols-outlined ml-1 text-sm">
+                  <ArrowRight />
+                </span>
+              </Link>
+            </div>
+            {/* Slider Container */}
+            <div className="relative group pb-4">
+              <div className="overflow-hidden relative">
+                <div
+                  className="flex transition-transform duration-1000 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {[0, 1].map((slideIdx) => (
+                    <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {featuredListings && featuredListings.length > 0 ? (
+                        featuredListings.slice(slideIdx * 3, (slideIdx + 1) * 3).map((listing: any) => (
+                          <ListingCard
+                            key={listing.id}
+                            id={listing.id}
+                            title={listing.title}
+                            price={listing.price}
+                            address={listing.address}
+                            imgUrl={listing.images[0].image_url || "./NoImage.png"}
+                            beds={listing.bedrooms}
+                            baths={listing.bathrooms}
+                            area={listing.area}
+                            status={listing.status}
+                          />
+                        ))
+                      ) : (
+                        <p className="py-10 text-center col-span-full">Không có tin đăng nào để hiển thị.</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Manual Controls */}
+              <button
+                onClick={() => setCurrentSlide((prev) => (prev === 0 ? 1 : 0))}
+                className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-orange-500 hover:border-orange-500 transition-all opacity-0 group-hover:opacity-100 hidden md:block z-20"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => setCurrentSlide((prev) => (prev === 0 ? 1 : 0))}
+                className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-orange-500 hover:border-orange-500 transition-all opacity-0 group-hover:opacity-100 hidden md:block z-20"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              {/* Pagination Dots */}
+              <div className="flex justify-center gap-2 mt-6">
+                <div onClick={() => setCurrentSlide(0)} className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${currentSlide === 0 ? "w-8 bg-orange-500" : "w-2 bg-slate-300"}`} />
+                <div onClick={() => setCurrentSlide(1)} className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${currentSlide === 1 ? "w-8 bg-orange-500" : "w-2 bg-slate-300"}`} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-5">
+          <div className="max-w-7xl mx-auto px-5 md:px-10">
+            <div className="flex items-end justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-red-100 rounded-2xl text-red-600">
+                  <MapPin className="w-8 h-8" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-slate-900 ">
+                    Tin đăng tại Hà Nội
+                  </h2>
+                  <p className="text-slate-500 ">
+                    Tìm kiếm nơi ở lý tưởng tại thủ đô.
+                  </p>
+                </div>
+              </div>
+              <Link
+                className="hidden md:flex items-center text-primary font-bold hover:underline bg-slate-50 px-4 py-2 rounded-full border border-slate-100 transition-colors"
+                href="/listings?province_code=1"
+              >
+                Xem tất cả
+                <span className="material-symbols-outlined ml-1 text-sm">
+                  <ArrowRight />
+                </span>
+              </Link>
+            </div>
+            {/* Slider Container */}
+            <div className="relative group pb-4">
+              <div className="overflow-hidden relative">
+                <div
+                  className="flex transition-transform duration-1000 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {[0, 1].map((slideIdx) => (
+                    <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {hanoiListings && hanoiListings.length > 0 ? (
+                        hanoiListings.slice(slideIdx * 3, (slideIdx + 1) * 3).map((listing: any) => (
+                          <ListingCard
+                            key={listing.id}
+                            id={listing.id}
+                            title={listing.title}
+                            price={listing.price}
+                            address={listing.address}
+                            imgUrl={listing.images[0].image_url || "./NoImage.png"}
+                            beds={listing.bedrooms}
+                            baths={listing.bathrooms}
+                            area={listing.area}
+                            status={listing.status}
+                          />
+                        ))
+                      ) : (
+                        <p className="py-10 text-center col-span-full">Không có tin đăng nào để hiển thị.</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Manual Controls */}
+              <button
+                onClick={() => setCurrentSlide((prev) => (prev === 0 ? 1 : 0))}
+                className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-red-500 hover:border-red-500 transition-all opacity-0 group-hover:opacity-100 hidden md:block z-20"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => setCurrentSlide((prev) => (prev === 0 ? 1 : 0))}
+                className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-400 hover:text-red-500 hover:border-red-500 transition-all opacity-0 group-hover:opacity-100 hidden md:block z-20"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              {/* Pagination Dots */}
+              <div className="flex justify-center gap-2 mt-6">
+                <div onClick={() => setCurrentSlide(0)} className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${currentSlide === 0 ? "w-8 bg-red-500" : "w-2 bg-slate-300"}`} />
+                <div onClick={() => setCurrentSlide(1)} className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${currentSlide === 1 ? "w-8 bg-red-500" : "w-2 bg-slate-300"}`} />
+              </div>
+            </div>
           </div>
         </section>
 

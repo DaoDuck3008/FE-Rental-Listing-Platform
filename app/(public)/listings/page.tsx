@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import ListingCard from "@/components/listing/listingCard";
 import {
   Search,
@@ -22,19 +23,24 @@ import { formatVietnamesePrice } from "@/utils/formatters";
 import { toast } from "react-toastify";
 import Link from "next/link";
 
-export default function SearchPage() {
+function SearchListings() {
+  const searchParams = useSearchParams();
   const [filters, setFilters] = useState({
-    keyword: "",
-    province_code: undefined as number | undefined,
+    keyword: searchParams.get("keyword") || "",
+    province_code: searchParams.get("province_code")
+      ? Number(searchParams.get("province_code"))
+      : undefined,
     ward_code: undefined as number | undefined,
-    listing_type_code: undefined as string | undefined,
-    min_price: 0,
-    max_price: 50000000,
-    min_area: 0,
-    max_area: 100,
-    beds: undefined as number | undefined,
-    amenities: [] as string[],
-    sort_by: "DATE_DESC",
+    listing_type_code: searchParams.get("listing_type_code") || undefined,
+    min_price: Number(searchParams.get("min_price")) || 0,
+    max_price: Number(searchParams.get("max_price")) || 50000000,
+    min_area: Number(searchParams.get("min_area")) || 0,
+    max_area: Number(searchParams.get("max_area")) || 100,
+    beds: searchParams.get("beds") ? Number(searchParams.get("beds")) : undefined,
+    amenities: searchParams.get("amenities")
+      ? searchParams.get("amenities")!.split(",")
+      : ([] as string[]),
+    sort_by: searchParams.get("sort_by") || "DATE_DESC",
     page: 1,
     limit: 12,
   });
@@ -114,6 +120,7 @@ export default function SearchPage() {
     { label: "Cũ nhất", value: "DATE_ASC" },
     { label: "Giá thấp đến cao", value: "PRICE_ASC" },
     { label: "Giá cao đến thấp", value: "PRICE_DESC" },
+    { label: "Xem nhiều nhất", value: "VIEW_DESC" },
   ];
 
   return (
@@ -486,5 +493,13 @@ export default function SearchPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense>
+      <SearchListings />
+    </Suspense>
   );
 }
