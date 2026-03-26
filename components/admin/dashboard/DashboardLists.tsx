@@ -109,7 +109,17 @@ export const DashboardLists = ({ lists }: { lists: ListData }) => {
                     <div className="flex flex-col flex-1 min-w-0">
                         <p className="text-sm font-semibold text-[#0d141b] dark:text-white truncate">{listing.title || 'Không tiêu đề'}</p>
                         <p className="text-xs text-slate-500">
-                            {formatDistanceToNow(new Date(listing.createdAt), { addSuffix: true, locale: vi })} • {listing.status === 'PUBLISHED' ? 'Đã duyệt' : (listing.status === 'PENDING' ? 'Chờ duyệt' : 'Bản nháp')}
+                          {(() => {
+                            const dateValue = listing.createdAt || listing.created_at;
+                            if (!dateValue) return "N/A";
+                            const d = new Date(dateValue);
+                            if (isNaN(d.getTime())) return "N/A";
+                            return formatDistanceToNow(d, {
+                              addSuffix: true,
+                              locale: vi,
+                            });
+                          })()}
+                          {" "}• {listing.status === 'PUBLISHED' ? 'Đã duyệt' : (listing.status === 'PENDING' ? 'Chờ duyệt' : 'Bản nháp')}
                         </p>
                     </div>
                     <span className={`size-2 rounded-full ${listing.status === 'PUBLISHED' ? 'bg-green-500' : (listing.status === 'PENDING' ? 'bg-yellow-400' : 'bg-slate-400')}`}></span>

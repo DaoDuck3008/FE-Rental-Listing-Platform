@@ -14,8 +14,10 @@ import {
   MonitorSmartphone,
   Globe,
   Clock,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { getAuditActionDisplay } from "@/utils";
 
 interface AuditLogDetail {
   id: string;
@@ -85,9 +87,14 @@ export default function AuditLogDetailPage() {
             <h1 className="text-2xl font-bold text-slate-800">
               Chi tiết Lịch sử <span className="text-blue-600">#{log.id.substring(0, 8)}...</span>
             </h1>
-            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700">
-              {log.action}
-            </span>
+            {(() => {
+              const { text, color } = getAuditActionDisplay(log.action);
+              return (
+                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${color}`}>
+                  {text}
+                </span>
+              );
+            })()}
           </div>
           <p className="text-slate-500 flex items-center gap-2 text-sm">
             <Clock size={14} /> Thời gian thực hiện:{" "}
@@ -132,12 +139,24 @@ export default function AuditLogDetailPage() {
 
         {/* Action Card */}
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-slate-500 font-medium text-sm">
-            <Activity size={16} /> <span>Hành Động</span>
-          </div>
-          <div className="font-bold text-slate-800 text-lg">
-            {log.action}
-          </div>
+          {(() => {
+            const { text, icon: Icon, color } = getAuditActionDisplay(log.action);
+            return (
+              <>
+                <div className="flex items-center gap-2 text-slate-500 font-medium text-sm">
+                  <Icon size={16} className={color.split(" ")[1]} /> <span>Hành Động</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-slate-800 text-lg">
+                    {text}
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-tighter">
+                    {log.action}
+                  </span>
+                </div>
+              </>
+            );
+          })()}
         </div>
 
         {/* Entity Card */}

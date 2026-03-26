@@ -18,10 +18,21 @@ import {
   Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
+import { getUserDashboardDataSWR } from "@/services/user.api";
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
+import { getAuditActionDisplay } from "@/utils";
 
 export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+
+  const { data: dashboardData, isLoading } = useSWR(
+    "user_dashboard_data",
+    getUserDashboardDataSWR
+  );
+
   const date = new Date();
   const formattedDate = date.toLocaleDateString("vi-VN", {
     weekday: "long",
@@ -78,32 +89,35 @@ export default function ProfilePage() {
           <DashboardCard
             icon={FileText}
             title="Số bài đăng đã tạo"
-            value={12}
-            description="+8%"
+            value={dashboardData?.stats?.total || 0}
+            description="Tổng cộng"
             iconSize={25}
             iconColor="blue-500"
             bgIconColor="blue-100"
+            isLoading={isLoading}
           />
 
           <DashboardCard
             icon={ArchiveRestore}
             title="Đang chờ duyệt"
-            value={2}
+            value={dashboardData?.stats?.pending || 0}
             description="Đang xử lý"
             iconSize={35}
             iconColor="yellow-500"
             textIconColor="yellow-600"
             bgIconColor="yellow-100"
+            isLoading={isLoading}
           />
 
           <DashboardCard
             icon={Eye}
             title="Đang hiển thị"
-            value={10}
-            description="+2 mới"
+            value={dashboardData?.stats?.published || 0}
+            description="Công khai"
             iconSize={25}
             iconColor="green-600"
             bgIconColor="green-100"
+            isLoading={isLoading}
           />
         </div>
         <div className="mb-8 lg:mb-10">
@@ -156,66 +170,57 @@ export default function ProfilePage() {
               Hoạt động gần đây
             </h3>
             <div className="bg-white border border-input-border rounded-xl divide-y divide-input-border shadow-sm flex-1">
-              <div className="p-4 flex items-start sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors cursor-pointer">
-                <div className="flex items-start sm:items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
-                    <span className="material-symbols-outlined text-lg">
-                      <CircleCheckBig size={20} />
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold line-clamp-1">
-                      Bài đăng "Căn hộ Studio Quận 1" đã được duyệt
-                    </p>
-                    <p className="text-xs text-text-secondary mt-1">
-                      2 giờ trước
-                    </p>
-                  </div>
+              {isLoading ? (
+                <div className="p-8 text-center text-text-secondary text-sm">
+                  Đang tải hoạt động...
                 </div>
-                <span className="material-symbols-outlined text-slate-400 text-sm">
-                  <ChevronRight size={20} />
-                </span>
-              </div>
-              <div className="p-4 flex items-start sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors cursor-pointer">
-                <div className="flex items-start sm:items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
-                    <span className="material-symbols-outlined text-lg">
-                      <Pencil size={20} />
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold line-clamp-1">
-                      Bạn đã cập nhật thông tin cá nhân
-                    </p>
-                    <p className="text-xs text-text-secondary mt-1">
-                      Hôm qua, 14:20
-                    </p>
-                  </div>
+              ) : dashboardData?.activities?.length > 0 ? (
+                dashboardData.activities.map((activity: any) => {
+                  const { text, icon: Icon, color } = getAuditActionDisplay(activity.action);
+
+                  return (
+                    <div
+                      key={activity.id}
+                      className="p-4 flex items-start sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-start sm:items-center gap-4">
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${color}`}
+                        >
+                          <span className="material-symbols-outlined text-lg">
+                            <Icon size={20} />
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold line-clamp-1">
+                            {text}
+                          </p>
+                          <p className="text-xs text-text-secondary mt-1">
+                            {(() => {
+                              const dateValue = activity.createdAt || activity.created_at;
+                              if (!dateValue) return "Không rõ thời gian";
+                              const date = new Date(dateValue);
+                              if (isNaN(date.getTime())) return "Thời gian không hợp lệ";
+                              
+                              return formatDistanceToNow(date, {
+                                addSuffix: true,
+                                locale: vi,
+                              });
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="material-symbols-outlined text-slate-400 text-sm">
+                        <ChevronRight size={20} />
+                      </span>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-8 text-center text-text-secondary text-sm">
+                  Chưa có hoạt động nào gần đây
                 </div>
-                <span className="material-symbols-outlined text-slate-400 text-sm">
-                  <ChevronRight size={20} />
-                </span>
-              </div>
-              <div className="p-4 flex items-start sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors cursor-pointer">
-                <div className="flex items-start sm:items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
-                    <span className="material-symbols-outlined text-lg">
-                      <Heart size={20} />
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold line-clamp-1">
-                      Bạn đã lưu tin "Nhà nguyên căn Gò Vấp"
-                    </p>
-                    <p className="text-xs text-text-secondary mt-1">
-                      20/05/2024
-                    </p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-slate-400 text-sm">
-                  <ChevronRight size={20} />
-                </span>
-              </div>
+              )}
             </div>
           </div>
         </div>

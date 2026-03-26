@@ -93,3 +93,11 @@ export const getUserDetailForAdmin = async (id: string) => {
     throw error;
   }
 };
+export const getUserDashboardDataSWR = async () => {
+  try {
+    const res = await api.get("/api/users/dashboard");
+    return res.data.data;
+  } catch (error: any) {
+    throw error;
+  }
+};

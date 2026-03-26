@@ -23,3 +23,4 @@ export {
 // Helpers
 export { cn } from "./cn";
 export { handleError } from "./error-handler";
+export { getAuditActionDisplay } from "./audit-log";

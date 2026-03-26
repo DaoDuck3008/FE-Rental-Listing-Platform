@@ -5,6 +5,7 @@ import { getAuditLogs } from "@/services/auditLog.api";
 import { Search, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "react-toastify";
 import Avatar from "@/components/common/avatar";
+import { getAuditActionDisplay } from "@/utils";
 
 interface AuditLog {
   id: string;
@@ -213,14 +214,24 @@ export default function AuditLogsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 w-max">
-                            {log.action}
-                          </span>
-                          <span className="text-xs text-slate-500 mt-1">
-                            {log.entity_type} ({log.entity_id})
-                          </span>
-                        </div>
+                        {(() => {
+                          const { text, icon: Icon, color } = getAuditActionDisplay(log.action);
+                          return (
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <div className={`p-1.5 rounded-lg ${color}`}>
+                                  <Icon size={14} />
+                                </div>
+                                <span className="text-sm font-bold text-slate-800">
+                                  {text}
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-400 mt-1 uppercase tracking-wider">
+                                {log.action} • {log.entity_type} ({log.entity_id})
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4">
                         <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-xs">
